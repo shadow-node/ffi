@@ -81,15 +81,19 @@ JS_FUNCTION(WrapStringValue) {
 
 JS_FUNCTION(UnwrapStringValue) {
   jerry_char_t **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  jerry_char_t *data = *ptr;
-
-  return jerry_create_string(data);
+  return jerry_create_string(*ptr);
 }
 
-JS_FUNCTION(WrapPointer) {
-  void* ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  void** ptrptr = malloc(sizeof(void*));
-  *ptrptr = ptr;
+JS_FUNCTION(WrapPointers) {
+  size_t num_args = JS_GET_ARG(0, number);
+  void** ptrptr = malloc(sizeof(void*) * num_args);
+
+  for (size_t idx = 0; idx < num_args; idx ++) {
+    jerry_value_t jval = jargv[idx + 1];
+    void *ptr = unwrap_ptr_from_jbuffer(jval);
+    ptrptr[idx] = ptr;
+  }
+
   return wrap_ptr(ptrptr);
 }
 
@@ -189,7 +193,7 @@ void LibFFI(jerry_value_t exports)
   iotjs_jval_set_method(exports, "unwrap_number_value", UnwrapNumberValue);
   iotjs_jval_set_method(exports, "wrap_string_value", WrapStringValue);
   iotjs_jval_set_method(exports, "unwrap_string_value", UnwrapStringValue);
-  iotjs_jval_set_method(exports, "wrap_pointer", WrapPointer);
+  iotjs_jval_set_method(exports, "wrap_pointers", WrapPointers);
 
   iotjs_jval_set_method(exports, "free", Free);
   iotjs_jval_set_method(exports, "free_pointer", FreePointer);

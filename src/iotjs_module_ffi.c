@@ -93,6 +93,19 @@ JS_FUNCTION(WrapPointer) {
   return wrap_ptr(ptrptr);
 }
 
+JS_FUNCTION(Free) {
+  void **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  free(*ptr);
+  free(ptr);
+  return jerry_create_undefined();
+}
+
+JS_FUNCTION(FreePointer) {
+  void* ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  free(ptr);
+  return jerry_create_undefined();
+}
+
 /*
  * Function that creates and returns an `ffi_cif` pointer from the given return
  * value type and argument types.
@@ -178,9 +191,19 @@ void LibFFI(jerry_value_t exports)
   iotjs_jval_set_method(exports, "unwrap_string_value", UnwrapStringValue);
   iotjs_jval_set_method(exports, "wrap_pointer", WrapPointer);
 
-  iotjs_jval_set_property_jval(exports, "dlopen", wrap_ptr(dlopen));
-  iotjs_jval_set_property_jval(exports, "dlsym", wrap_ptr(dlsym));
-  iotjs_jval_set_property_jval(exports, "printf", wrap_ptr(printf));
+  iotjs_jval_set_method(exports, "free", Free);
+  iotjs_jval_set_method(exports, "free_pointer", FreePointer);
+
+  #define WRAP(name) \
+    jerry_value_t wrap_##name = wrap_ptr(name); \
+    iotjs_jval_set_property_jval(exports, #name, wrap_##name); \
+    jerry_release_value(wrap_##name)
+
+  WRAP(dlopen);
+  WRAP(dlsym);
+  WRAP(printf);
+
+  #undef WRAP
 }
 
 NODE_MODULE("libffi", LibFFI)

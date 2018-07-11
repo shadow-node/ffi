@@ -19,6 +19,8 @@ ffi_type* sdffi_str_to_ffi_type_ptr(char *str) {
 
   if(strcmp(str, "string") == 0) {
     type_ptr = &ffi_type_pointer;
+  } else if (strcmp(str, "pointer") == 0) {
+    type_ptr = &ffi_type_pointer;
   } else if (strcmp(str, "int") == 0) {
     type_ptr = &ffi_type_uint;
   } else if (strcmp(str, "double") == 0) {
@@ -53,6 +55,16 @@ ffi_type** sdffi_jarr_to_ffi_type_arr_ptr(jerry_value_t jarr, uint32_t length) {
   }
 
   return type_arr;
+}
+
+JS_FUNCTION(AllocPointer) {
+  void **ptrptr = malloc(sizeof(void *));
+  return wrap_ptr(ptrptr);
+}
+
+JS_FUNCTION(UnwrapPointerPointer) {
+  void **ptrptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  return wrap_ptr(*ptrptr);
 }
 
 JS_FUNCTION(WrapNumberValue) {
@@ -188,6 +200,9 @@ void LibFFI(jerry_value_t exports)
   iotjs_jval_set_method(exports, "ffi_call", FFICall);
 
   iotjs_jval_set_method(exports, "is_ptr_null", IsPtrNull);
+
+  iotjs_jval_set_method(exports, "alloc_pointer", AllocPointer);
+  iotjs_jval_set_method(exports, "unwrap_pointer_pointer", UnwrapPointerPointer);
 
   iotjs_jval_set_method(exports, "wrap_number_value", WrapNumberValue);
   iotjs_jval_set_method(exports, "unwrap_number_value", UnwrapNumberValue);

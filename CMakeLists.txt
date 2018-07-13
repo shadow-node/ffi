@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 2.8.12)
 project(shadow_ffi C)
 
 set(LIBFFI_SOURCE_FILES
+  src/callback_info.c
   src/ffi.c
   src/iotjs_module_ffi.c
-  src/callback_info.c)
+  src/types.c)
 
 add_library(shadow_ffi MODULE ${LIBFFI_SOURCE_FILES})
 set(CMAKE_C_FLAGS "-Os")

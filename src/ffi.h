@@ -31,4 +31,8 @@ void *unwrap_ptr_from_jbuffer(jerry_value_t jbuffer);
 void LibFFICallbackInfo(jerry_value_t exports);
 /** END MARK: callback_info.c*/
 
+/** MARK: - callback_info.c */
+void LibFFITypes(jerry_value_t exports);
+/** END MARK: callback_info.c*/
+
 #endif /* SHADOW_FFI_H */

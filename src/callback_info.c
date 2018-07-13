@@ -3,8 +3,20 @@
 
 void sdf_dispatchToJs(sdffi_callback_info_t *info, void *retval, void **parameters) {
   jerry_value_t jval_callback = info->callback;
-  jerry_value_t jargs[] = {};
-  jerry_value_t jval_ret = jerry_call_function(jval_callback, jerry_create_null(), jargs, 0);
+  ffi_cif *cif_ptr = info->cif;
+  jerry_value_t *jargs = malloc(sizeof(jerry_value_t) * cif_ptr->nargs);
+  for (unsigned idx = 0; idx < cif_ptr->nargs; idx ++) {
+    jargs[idx] = wrap_ptr(parameters[idx]);
+  }
+  jerry_value_t jval_ret = jerry_call_function(jval_callback, jerry_create_null(), jargs, cif_ptr->nargs);
+
+  for (unsigned idx = 0; idx < cif_ptr->nargs; idx ++) {
+    jerry_release_value(jargs[idx]);
+  }
+  free(jargs);
+  if (jerry_value_has_error_flag(jval_ret)) {
+    printf("ffi: unexpected error on invoking js callback\n");
+  }
 
   jerry_release_value(jval_ret);
 }
@@ -27,6 +39,7 @@ JS_FUNCTION(WrapCallback) {
   ffi_closure *closure;
   void **code = malloc(sizeof(void *));
   sdffi_callback_info_t *user_data = malloc(sizeof(sdffi_callback_info_t));
+  user_data->cif = callback_cif;
   user_data->code_loc = code;
   user_data->callback = jerry_acquire_value(jval_callback);
 
@@ -34,7 +47,6 @@ JS_FUNCTION(WrapCallback) {
   status = ffi_prep_closure_loc(closure, callback_cif, ffiInvoke, user_data, *code);
   if (status != FFI_OK) {
     ffi_closure_free(closure);
-    free(callback_cif);
     return jerry_create_number(status);
   }
 
@@ -45,7 +57,7 @@ JS_FUNCTION(WrapCallback) {
 JS_FUNCTION(GetCallbackCodeLoc) {
   ffi_closure *closure = (ffi_closure *)unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   sdffi_callback_info_t *info = (sdffi_callback_info_t *)closure->user_data;
-  return wrap_ptr(info->code_loc);
+  return wrap_ptr(*(info->code_loc));
 }
 
 JS_FUNCTION(ReleaseCallback) {

@@ -148,6 +148,7 @@ void LibFFI(jerry_value_t exports)
   #undef WRAP
 
   LibFFICallbackInfo(exports);
+  LibFFITypes(exports);
 }
 
 NODE_MODULE("libffi", LibFFI)

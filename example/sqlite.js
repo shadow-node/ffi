@@ -4,8 +4,8 @@
  */
 
 var fs = require('fs')
-  , ref = require('ref')
-  , ffi = require('../')
+var ref = require('ref')
+var ffi = require('../')
 
 /**
  * The filename of the sqlite3 database to use.
@@ -18,18 +18,18 @@ var dbName = process.argv[2] || 'test.sqlite3'
  */
 
 var sqlite3 = 'void' // `sqlite3` is an "opaque" type, so we don't know its layout
-  , sqlite3Ptr = ref.refType(sqlite3)
-  , sqlite3PtrPtr = ref.refType(sqlite3Ptr)
-  , sqlite3_exec_callback = 'pointer' // TODO: use ffi.Callback when #76 is implemented
-  , stringPtr = ref.refType('string')
+var sqlite3Ptr = ref.refType(sqlite3)
+var sqlite3PtrPtr = ref.refType(sqlite3Ptr)
+var sqlite3ExecCallback = 'pointer' // TODO: use ffi.Callback when #76 is implemented
+var stringPtr = ref.refType('string')
 
 // create FFI'd versions of the libsqlite3 function we're interested in
 var SQLite3 = ffi.Library('libsqlite3', {
   'sqlite3_libversion': [ 'string', [ ] ],
   'sqlite3_open': [ 'int', [ 'string', sqlite3PtrPtr ] ],
   'sqlite3_close': [ 'int', [ sqlite3Ptr ] ],
-  'sqlite3_changes': [ 'int', [ sqlite3Ptr ]],
-  'sqlite3_exec': [ 'int', [ sqlite3Ptr, 'string', sqlite3_exec_callback, 'void *', stringPtr ] ],
+  'sqlite3_changes': [ 'int', [ sqlite3Ptr ] ],
+  'sqlite3_exec': [ 'int', [ sqlite3Ptr, 'string', sqlite3ExecCallback, 'void *', stringPtr ] ]
 })
 
 // print out the "libsqlite3" version number
@@ -78,7 +78,7 @@ var callback = ffi.Callback('int', ['void *', 'int', stringPtr, stringPtr], func
   return 0
 })
 
-var b = new Buffer('test')
+var b = Buffer.from('test')
 SQLite3.sqlite3_exec.async(db, 'SELECT * FROM foo;', callback, b, null, function (err, ret) {
   if (err) throw err
   console.log('Total Rows: %j', rowCount)
@@ -86,5 +86,4 @@ SQLite3.sqlite3_exec.async(db, 'SELECT * FROM foo;', callback, b, null, function
   console.log('Closing...')
   SQLite3.sqlite3_close(db)
   fs.unlinkSync(dbName)
-  fin = true
 })

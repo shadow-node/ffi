@@ -1,10 +1,9 @@
 
-var assert = require('assert')
-  , ref = require('ref')
-  , ffi = require('../')
+var assert = require('assert'),
+  ref = require('ref'),
+  ffi = require('../')
 
 describe('ffi_cif', function () {
-
   afterEach(gc)
 
   it('should return a Buffer representing the `ffi_cif` instance', function () {
@@ -13,7 +12,7 @@ describe('ffi_cif', function () {
   })
 
   it('should throw an Error when given an invalid "type"', function () {
-    var ffi_type = new ffi.FFI_TYPE
+    var ffi_type = new ffi.FFI_TYPE()
     ffi_type.size = 0
     ffi_type.alignment = 0
     ffi_type.type = 0
@@ -40,5 +39,4 @@ describe('ffi_cif', function () {
       return true
     })
   })
-
 })

@@ -1,24 +1,23 @@
 
-var assert = require('assert')
-  , ref = require('ref')
-  , Array = require('ref-array')
-  , Struct = require('ref-struct')
-  , ffi = require('../')
-  , bindings = require('bindings')({ module_root: __dirname, bindings: 'ffi_tests' })
+var assert = require('assert'),
+  ref = require('ref'),
+  Array = require('ref-array'),
+  Struct = require('ref-struct'),
+  ffi = require('../'),
+  bindings = require('bindings')({ module_root: __dirname, bindings: 'ffi_tests' })
 
 describe('ForeignFunction', function () {
-
   afterEach(gc)
 
   // these structs are also defined in ffi_tests.cc
   var box = Struct({
-      width: ref.types.int
-    , height: ref.types.int
+    width: ref.types.int,
+    height: ref.types.int
   })
 
   var arst = Struct({
-      num: 'int'
-    , array: Array('double', 20)
+    num: 'int',
+    array: Array('double', 20)
   })
 
   it('should call the static "abs" bindings', function () {
@@ -46,7 +45,7 @@ describe('ForeignFunction', function () {
 
   it('should call the static "double_box" bindings', function () {
     var double_box = ffi.ForeignFunction(bindings.double_box, box, [ box ])
-    var b = new box
+    var b = new box()
     assert(b instanceof box)
     b.width = 4
     b.height = 5
@@ -64,7 +63,7 @@ describe('ForeignFunction', function () {
   it('should call the static "double_box_ptr" bindings', function () {
     var boxPtr = ref.refType(box)
     var double_box_ptr = ffi.ForeignFunction(bindings.double_box_ptr, box, [ boxPtr ])
-    var b = new box
+    var b = new box()
     b.width = 4
     b.height = 5
     var out = double_box_ptr(b.ref())
@@ -133,7 +132,7 @@ describe('ForeignFunction', function () {
 
   it('should call the static "array_in_struct" bindings', function () {
     var array_in_struct = ffi.ForeignFunction(bindings.array_in_struct, arst, [ arst ])
-    var a = new arst
+    var a = new arst()
     assert.equal(20, a.array.length)
     a.num = 69
     for (var i = 0; i < 20; i++) {
@@ -182,7 +181,6 @@ describe('ForeignFunction', function () {
   })
 
   describe('async', function () {
-
     it('should call the static "abs" bindings asynchronously', function (done) {
       var _abs = bindings.abs
       var abs = ffi.ForeignFunction(_abs, 'int', [ 'int' ])
@@ -207,13 +205,10 @@ describe('ForeignFunction', function () {
           assert(/error setting argument 0/.test(err.message))
           assert.equal('undefined', typeof res)
           done()
-        }
-        catch (e) {
+        } catch (e) {
           done(e)
         }
       })
     })
-
   })
-
 })

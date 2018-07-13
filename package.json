@@ -19,11 +19,18 @@
     "bindings": "~1.2.0",
     "debug": "2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "standard": "^11.0.1"
+  },
   "scripts": {
     "configure": "sh tools/configure",
     "build": "sh tools/build",
     "test": "node-gyp rebuild --directory test && mocha -gc --reporter spec"
+  },
+  "standard": {
+    "ignore": [
+      "test"
+    ]
   },
   "repository": {
     "type": "git",

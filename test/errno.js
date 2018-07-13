@@ -1,11 +1,10 @@
 
-var assert = require('assert')
-  , ref = require('ref')
-  , ffi = require('../')
-  , errno = ffi.errno
+var assert = require('assert'),
+  ref = require('ref'),
+  ffi = require('../'),
+  errno = ffi.errno
 
 describe('errno()', function () {
-
   afterEach(gc)
 
   it('should be a function', function () {
@@ -20,5 +19,4 @@ describe('errno()', function () {
     strtoul('1234567890123456789012345678901234567890', null, 0)
     assert.equal(34, errno()) // errno == ERANGE
   })
-
 })

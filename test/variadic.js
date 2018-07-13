@@ -1,12 +1,11 @@
 
-var assert = require('assert')
-  , ref = require('ref')
-  , ffi = require('../')
-  , bindings = require('bindings')({ module_root: __dirname, bindings: 'ffi_tests' })
-  , sprintfPtr = bindings.sprintf
+var assert = require('assert'),
+  ref = require('ref'),
+  ffi = require('../'),
+  bindings = require('bindings')({ module_root: __dirname, bindings: 'ffi_tests' }),
+  sprintfPtr = bindings.sprintf
 
 describe('variadic arguments', function () {
-
   afterEach(gc)
 
   it('should work with vararg C functions', function () {
@@ -34,5 +33,4 @@ describe('variadic arguments', function () {
 
     assert.strictEqual(one, two)
   })
-
 })

@@ -13,9 +13,8 @@
  * it doesn't crash ever.
  */
 
-var ref = require('ref')
-  , ffi = require('../')
-  , assert = require('assert')
+var ffi = require('../')
+var assert = require('assert')
 
 var funcPtr = ffi.Callback('int', [ 'int' ], Math.abs)
 var func = ffi.ForeignFunction(funcPtr, 'int', [ 'int' ])
@@ -24,6 +23,6 @@ function loop () {
   for (var i = 0; i < 100; i++) {
     assert.equal(Math.abs(-i), func(-i))
   }
-  (typeof setImmediate != 'undefined' ? setImmediate : process.nextTick)(loop)
+  (typeof setImmediate !== 'undefined' ? setImmediate : process.nextTick)(loop)
 }
 loop()

@@ -1,11 +1,10 @@
-var assert = require('assert')
-  , ref = require('ref')
-  , ffi = require('../')
-  , int = ref.types.int
-  , bindings = require('bindings')({ module_root: __dirname, bindings: 'ffi_tests' })
+var assert = require('assert'),
+  ref = require('ref'),
+  ffi = require('../'),
+  int = ref.types.int,
+  bindings = require('bindings')({ module_root: __dirname, bindings: 'ffi_tests' })
 
 describe('Callback', function () {
-
   afterEach(gc)
 
   it('should create a C function pointer from a JS function', function () {
@@ -95,7 +94,7 @@ describe('Callback', function () {
    * See: https://github.com/node-ffi/node-ffi/issues/199
    */
 
-  it("should propagate callbacks and errors back from native threads", function(done) {
+  it('should propagate callbacks and errors back from native threads', function (done) {
     var invokeCount = 0
     var cb = ffi.Callback('void', [ ], function () {
       invokeCount++
@@ -155,7 +154,6 @@ describe('Callback', function () {
   })
 
   describe('async', function () {
-
     it('should be invokable asynchronously by an ffi\'d ForeignFunction', function (done) {
       var funcPtr = ffi.Callback(int, [ int ], Math.abs)
       var func = ffi.ForeignFunction(funcPtr, int, [ int ])
@@ -174,10 +172,10 @@ describe('Callback', function () {
       this.timeout(10000)
       var iterations = 30000
       var cb = ffi.Callback('string', [ 'string' ], function (val) {
-        if (val === "ping" && --iterations > 0) {
-          return "pong"
+        if (val === 'ping' && --iterations > 0) {
+          return 'pong'
         }
-        return "end"
+        return 'end'
       })
       var pingPongFn = ffi.ForeignFunction(bindings.play_ping_pong, 'void', [ 'pointer' ])
       pingPongFn.async(cb, function (err, ret) {
@@ -282,7 +280,5 @@ describe('Callback', function () {
       // should generate an "uncaughtException" asynchronously
       bindings.call_cb_async()
     })
-
   })
-
 })

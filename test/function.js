@@ -1,11 +1,10 @@
 
-var assert = require('assert')
-  , ref = require('ref')
-  , ffi = require('../')
-  , bindings = require('bindings')({ module_root: __dirname, bindings: 'ffi_tests' })
+var assert = require('assert'),
+  ref = require('ref'),
+  ffi = require('../'),
+  bindings = require('bindings')({ module_root: __dirname, bindings: 'ffi_tests' })
 
 describe('Function "type"', function () {
-
   afterEach(gc)
 
   it('should be a function', function () {
@@ -40,5 +39,4 @@ describe('Function "type"', function () {
     assert.equal(Math.abs(-69), abs(-69))
     assert.equal(Math.abs(3), abs(3))
   })
-
 })

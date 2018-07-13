@@ -14,25 +14,6 @@ void *unwrap_ptr_from_jbuffer(jerry_value_t jbuffer) {
   return *(void**)iotjs_bufferwrap_buffer(bufferwrap);
 }
 
-ffi_type* sdffi_str_to_ffi_type_ptr(char *str) {
-  ffi_type* type_ptr;
-
-  if(strcmp(str, "string") == 0) {
-    type_ptr = &ffi_type_pointer;
-  } else if (strcmp(str, "pointer") == 0) {
-    type_ptr = &ffi_type_pointer;
-  } else if (strcmp(str, "int") == 0) {
-    type_ptr = &ffi_type_uint;
-  } else if (strcmp(str, "double") == 0) {
-    type_ptr = &ffi_type_double;
-  } else {
-    // defaults to ffi_type_void
-    type_ptr = &ffi_type_void;
-  }
-
-  return type_ptr;
-}
-
 ffi_type* sdffi_jval_to_ffi_type_ptr(jerry_value_t jval) {
   assert(jerry_value_is_string(jval));
 

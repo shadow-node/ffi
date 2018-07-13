@@ -11,14 +11,14 @@ JS_FUNCTION(UnwrapPointerPointer) {
 }
 
 JS_FUNCTION(WrapIntegerValue) {
-  int val = (int)JS_GET_ARG(0, number);
-  int *ptr = malloc(sizeof(int));
+  long val = (long)JS_GET_ARG(0, number);
+  long *ptr = malloc(sizeof(long));
   *ptr = val;
   return wrap_ptr(ptr);
 }
 
 JS_FUNCTION(UnwrapIntegerValue) {
-  int *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  long *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   return jerry_create_number((double)*ptr);
 }
 
@@ -75,6 +75,44 @@ JS_FUNCTION(FreePointer) {
   void* ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   free(ptr);
   return jerry_create_undefined();
+}
+
+ffi_type* sdffi_str_to_ffi_type_ptr(char *str) {
+  ffi_type* type_ptr;
+
+  if(strcmp(str, "string") == 0) {
+    type_ptr = &ffi_type_pointer;
+  } else if (strcmp(str, "pointer") == 0) {
+    type_ptr = &ffi_type_pointer;
+  } else if (strcmp(str, "int") == 0) {
+    type_ptr = &ffi_type_slong;
+  } else if (strcmp(str, "double") == 0) {
+    type_ptr = &ffi_type_double;
+  } else {
+    // defaults to ffi_type_void
+    type_ptr = &ffi_type_void;
+  }
+
+  return type_ptr;
+}
+
+void sdffi_cast_jval_to_pointer(void *ptr, ffi_type *type_ptr, jerry_value_t jval) {
+  if (jerry_value_is_string(jval)) {
+    jerry_length_t len = jerry_get_string_length(jval);
+    char *val = malloc(sizeof(char) * len);
+    jerry_string_to_char_buffer(jval, (jerry_char_t *)val, len);
+
+    *(char **)ptr = val;
+  } else if (jerry_value_is_number(jval)) {
+    if (type_ptr == &ffi_type_double) {
+      *(double *)ptr = jerry_get_number_value(jval);
+    } else if (type_ptr == &ffi_type_slong) {
+      *(long *)ptr = (long)jerry_get_number_value(jval);
+    }
+  } else if (type_ptr == &ffi_type_pointer) {
+    void *unwrap_ptr = unwrap_ptr_from_jbuffer(jval);
+    *(char **)ptr = unwrap_ptr;
+  }
 }
 
 void LibFFITypes(jerry_value_t exports) {

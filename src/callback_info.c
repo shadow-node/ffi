@@ -18,6 +18,8 @@ void sdf_dispatchToJs(sdffi_callback_info_t *info, void *retval, void **paramete
     printf("ffi: unexpected error on invoking js callback\n");
   }
 
+  sdffi_cast_jval_to_pointer(retval, cif_ptr->rtype, jval_ret);
+
   jerry_release_value(jval_ret);
 }
 

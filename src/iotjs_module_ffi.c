@@ -1,4 +1,4 @@
-#include "iotjs_module_ffi.h"
+#include "ffi.h"
 
 jerry_value_t wrap_ptr (void *ptr) {
   size_t ptr_sizeof_char = sizeof(void*) / sizeof(char);
@@ -223,6 +223,8 @@ void LibFFI(jerry_value_t exports)
   WRAP(printf);
 
   #undef WRAP
+
+  LibFFICallbackInfo(exports);
 }
 
 NODE_MODULE("libffi", LibFFI)

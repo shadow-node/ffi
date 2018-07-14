@@ -1,11 +1,11 @@
 #!/bin/sh
 set -e
 
-# cd deps/libffi/
+cd deps/libffi/
 
-# ./configure --enable-static --disable-shared --disable-builddir --with-pic --program-prefix=$(pwd)/build/deps/libffi
+./configure --enable-static --disable-shared --disable-builddir --with-pic --program-prefix=$(pwd)/build/deps/libffi
 
-# cd -
+cd -
 
 PROJECT_ROOT="$(pwd)"
 BUILD_DIR="build/$(uname -m)-$(uname)"

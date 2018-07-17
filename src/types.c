@@ -2,6 +2,7 @@
 
 JS_FUNCTION(AllocPointer) {
   void **ptrptr = malloc(sizeof(void *));
+  memset(ptrptr, 0, sizeof(void *));
   return wrap_ptr(ptrptr);
 }
 

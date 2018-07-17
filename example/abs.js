@@ -21,7 +21,7 @@ var func = ffi.ForeignFunction(funcPtr, 'int', [ 'int' ])
 
 function loop () {
   for (var i = 0; i < 100; i++) {
-    assert.equal(Math.abs(-i), func(-i))
+    assert.equal(func(-i), Math.abs(-i))
   }
   (typeof setImmediate !== 'undefined' ? setImmediate : process.nextTick)(loop)
 }

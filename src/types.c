@@ -1,9 +1,26 @@
 #include "ffi.h"
 
+static const jerry_object_native_info_t pointer_object_type_info = {
+  .free_cb = free
+};
+
+static void native_string_pointer_free_cb(void* native_p) {
+  char **char_ptrptr = (char **) native_p;
+  free(*char_ptrptr);
+  free(char_ptrptr);
+}
+
+static const jerry_object_native_info_t string_pointer_object_type_info = {
+  .free_cb = native_string_pointer_free_cb
+};
+
 JS_FUNCTION(AllocPointer) {
   void **ptrptr = malloc(sizeof(void *));
   memset(ptrptr, 0, sizeof(void *));
-  return wrap_ptr(ptrptr);
+
+  jerry_value_t jval_ptr = wrap_ptr(ptrptr);
+  jerry_set_object_native_pointer(jval_ptr, ptrptr, &pointer_object_type_info);
+  return jval_ptr;
 }
 
 JS_FUNCTION(UnwrapPointerPointer) {
@@ -15,7 +32,10 @@ JS_FUNCTION(WrapIntegerValue) {
   long val = (long)JS_GET_ARG(0, number);
   long *ptr = malloc(sizeof(long));
   *ptr = val;
-  return wrap_ptr(ptr);
+
+  jerry_value_t jval_ptr = wrap_ptr(ptr);
+  jerry_set_object_native_pointer(jval_ptr, ptr, &pointer_object_type_info);
+  return jval_ptr;
 }
 
 JS_FUNCTION(UnwrapIntegerValue) {
@@ -27,7 +47,10 @@ JS_FUNCTION(WrapNumberValue) {
   double val = JS_GET_ARG(0, number);
   double *ptr = malloc(sizeof(double));
   *ptr = val;
-  return wrap_ptr(ptr);
+
+  jerry_value_t jval_ptr = wrap_ptr(ptr);
+  jerry_set_object_native_pointer(jval_ptr, ptr, &pointer_object_type_info);
+  return jval_ptr;
 }
 
 JS_FUNCTION(UnwrapNumberValue) {
@@ -44,7 +67,10 @@ JS_FUNCTION(WrapStringValue) {
   char **ptr = malloc(sizeof(char *));
   *ptr = str_data;
 
-  return wrap_ptr(ptr);
+
+  jerry_value_t jval_ptr = wrap_ptr(ptr);
+  jerry_set_object_native_pointer(jval_ptr, ptr, &string_pointer_object_type_info);
+  return jval_ptr;
 }
 
 JS_FUNCTION(UnwrapStringValue) {
@@ -62,25 +88,9 @@ JS_FUNCTION(WrapPointers) {
     ptrptr[idx] = ptr;
   }
 
-  return wrap_ptr(ptrptr);
-}
-
-JS_FUNCTION(Free) {
-  void **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  free(*ptr);
-  free(ptr);
-  return jerry_create_undefined();
-}
-
-JS_FUNCTION(FreePointer) {
-  void* ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  free(ptr);
-  return jerry_create_undefined();
-}
-
-JS_FUNCTION(UnrefPointer) {
-  void **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  return wrap_ptr(*ptr);
+  jerry_value_t jval_ptr = wrap_ptr(ptrptr);
+  jerry_set_object_native_pointer(jval_ptr, ptrptr, &pointer_object_type_info);
+  return jval_ptr;
 }
 
 JS_FUNCTION(IsPointerNull) {
@@ -138,9 +148,5 @@ void LibFFITypes(jerry_value_t exports) {
   iotjs_jval_set_method(exports, "unwrap_string_value", UnwrapStringValue);
   iotjs_jval_set_method(exports, "wrap_pointers", WrapPointers);
 
-  iotjs_jval_set_method(exports, "free", Free);
-  iotjs_jval_set_method(exports, "free_pointer", FreePointer);
-
-  iotjs_jval_set_method(exports, "unref_pointer", UnrefPointer);
   iotjs_jval_set_method(exports, "is_pointer_null", IsPointerNull);
 }

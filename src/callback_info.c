@@ -1,6 +1,20 @@
 #include "ffi.h"
 #include "iotjs_module_buffer.h"
 
+static void native_closure_pointer_free_cb(void* native_p) {
+  ffi_closure *closure = (ffi_closure *)native_p;
+  sdffi_callback_info_t *info = (sdffi_callback_info_t *)closure->user_data;
+
+  free(info->code_loc);
+  jerry_release_value(info->callback);
+
+  ffi_closure_free(closure);
+}
+
+static const jerry_object_native_info_t closure_pointer_object_type_info = {
+  .free_cb = native_closure_pointer_free_cb
+};
+
 void sdf_dispatchToJs(sdffi_callback_info_t *info, void *retval, void **parameters) {
   jerry_value_t jval_callback = info->callback;
   ffi_cif *cif_ptr = info->cif;
@@ -54,12 +68,17 @@ JS_FUNCTION(WrapCallback) {
   closure = ffi_closure_alloc(sizeof(ffi_closure), code);
   status = ffi_prep_closure_loc(closure, callback_cif, ffiInvoke, user_data, *code);
   if (status != FFI_OK) {
+    jerry_release_value(user_data->callback);
+    free(user_data->code_loc);
+    free(user_data);
     ffi_closure_free(closure);
     return jerry_create_number(status);
   }
 
   jerry_release_value(jval_callback);
-  return wrap_ptr(closure);
+  jerry_value_t jval_ret = wrap_ptr(closure);
+  jerry_set_object_native_pointer(jval_ret, closure, &closure_pointer_object_type_info);
+  return jval_ret;
 }
 
 JS_FUNCTION(GetCallbackCodeLoc) {
@@ -68,20 +87,7 @@ JS_FUNCTION(GetCallbackCodeLoc) {
   return wrap_ptr(*(info->code_loc));
 }
 
-JS_FUNCTION(ReleaseCallback) {
-  ffi_closure *closure = (ffi_closure *)unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  sdffi_callback_info_t *info = (sdffi_callback_info_t *)closure->user_data;
-
-  free(info->code_loc);
-  jerry_release_value(info->callback);
-
-  ffi_closure_free(closure);
-
-  return jerry_create_undefined();
-}
-
 void LibFFICallbackInfo(jerry_value_t exports) {
   iotjs_jval_set_method(exports, "wrap_callback", WrapCallback);
   iotjs_jval_set_method(exports, "get_callback_code_loc", GetCallbackCodeLoc);
-  iotjs_jval_set_method(exports, "release_callback", ReleaseCallback);
 }

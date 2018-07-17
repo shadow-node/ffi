@@ -1,5 +1,9 @@
 #include "ffi.h"
 
+static const jerry_object_native_info_t pointer_object_type_info = {
+  .free_cb = free
+};
+
 jerry_value_t wrap_ptr (void *ptr) {
   size_t ptr_sizeof_char = sizeof(void*) / sizeof(char);
   jerry_value_t jbuffer = iotjs_bufferwrap_create_buffer(ptr_sizeof_char);
@@ -76,6 +80,8 @@ JS_FUNCTION(FFIPrepCif) {
 
     size_t written = iotjs_bufferwrap_copy(bufferwrap, (char*) &cif_ptr, data_len);
     assert(written == data_len);
+
+    jerry_set_object_native_pointer(jval_buffer, cif_ptr, &pointer_object_type_info);
   }
 
   return jerry_create_number(status);

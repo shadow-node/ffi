@@ -77,6 +77,16 @@ JS_FUNCTION(FreePointer) {
   return jerry_create_undefined();
 }
 
+JS_FUNCTION(UnrefPointer) {
+  void **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  return wrap_ptr(*ptr);
+}
+
+JS_FUNCTION(IsPointerNull) {
+  void* ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  return jerry_create_boolean(ptr == NULL);
+}
+
 ffi_type* sdffi_str_to_ffi_type_ptr(char *str) {
   ffi_type* type_ptr;
 
@@ -129,4 +139,7 @@ void LibFFITypes(jerry_value_t exports) {
 
   iotjs_jval_set_method(exports, "free", Free);
   iotjs_jval_set_method(exports, "free_pointer", FreePointer);
+
+  iotjs_jval_set_method(exports, "unref_pointer", UnrefPointer);
+  iotjs_jval_set_method(exports, "is_pointer_null", IsPointerNull);
 }

@@ -13,8 +13,8 @@
  * it doesn't crash ever.
  */
 
-var ffi = require('../')
 var assert = require('assert')
+var ffi = require('../lib/ffi')
 
 var funcPtr = ffi.Callback('int', [ 'int' ], Math.abs)
 var func = ffi.ForeignFunction(funcPtr, 'int', [ 'int' ])

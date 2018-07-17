@@ -124,8 +124,22 @@ void LibFFI(jerry_value_t exports)
 
   WRAP(dlopen);
   WRAP(dlsym);
+  WRAP(dlclose);
+  WRAP(dlerror);
   WRAP(printf);
 
+
+  #define WRAP_PREPROCESSOR_VAL(flag) \
+    do { \
+      jerry_value_t val = jerry_create_number(flag); \
+      iotjs_jval_set_property_jval(exports, #flag, val); \
+      jerry_release_value(val); \
+    } while (0)
+
+  WRAP_PREPROCESSOR_VAL(RTLD_LAZY);
+  WRAP_PREPROCESSOR_VAL(RTLD_NOW);
+
+  #undef WRAP_PREPROCESSOR_VAL
   #undef WRAP
 
   LibFFICallbackInfo(exports);

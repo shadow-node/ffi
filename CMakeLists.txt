@@ -14,7 +14,7 @@ set_target_properties(shadow_ffi PROPERTIES
   PREFIX ""
   SUFFIX ".node"
   OUTPUT_NAME "shadow_ffi"
-  LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/build/"
+  LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/build/bindings"
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES Darwin)

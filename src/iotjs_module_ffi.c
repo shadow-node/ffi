@@ -118,9 +118,11 @@ void LibFFI(jerry_value_t exports)
   iotjs_jval_set_method(exports, "is_ptr_null", IsPtrNull);
 
   #define WRAP(name) \
-    jerry_value_t wrap_##name = wrap_ptr(name); \
-    iotjs_jval_set_property_jval(exports, #name, wrap_##name); \
-    jerry_release_value(wrap_##name)
+    do { \
+      jerry_value_t wrap_##name = wrap_ptr(name); \
+      iotjs_jval_set_property_jval(exports, #name, wrap_##name); \
+      jerry_release_value(wrap_##name); \
+    } while (0)
 
   WRAP(dlopen);
   WRAP(dlsym);
@@ -128,6 +130,7 @@ void LibFFI(jerry_value_t exports)
   WRAP(dlerror);
   WRAP(printf);
 
+  #undef WRAP
 
   #define WRAP_PREPROCESSOR_VAL(flag) \
     do { \
@@ -140,7 +143,6 @@ void LibFFI(jerry_value_t exports)
   WRAP_PREPROCESSOR_VAL(RTLD_NOW);
 
   #undef WRAP_PREPROCESSOR_VAL
-  #undef WRAP
 
   LibFFICallbackInfo(exports);
   LibFFITypes(exports);

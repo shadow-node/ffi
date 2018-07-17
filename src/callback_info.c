@@ -15,7 +15,13 @@ void sdf_dispatchToJs(sdffi_callback_info_t *info, void *retval, void **paramete
   }
   free(jargs);
   if (jerry_value_has_error_flag(jval_ret)) {
-    printf("ffi: unexpected error on invoking js callback\n");
+    jerry_value_t jval_err_str = jerry_value_to_string(jval_ret);
+    jerry_size_t size = jerry_get_utf8_string_size(jval_err_str);
+    char err_str_buf[size];
+    sdffi_copy_string_value(err_str_buf, jval_err_str);
+    printf("ffi: unexpected error on invoking js callback, reason: %s\n", err_str_buf);
+
+    jerry_release_value(jval_err_str);
   }
 
   sdffi_cast_jval_to_pointer(retval, cif_ptr->rtype, jval_ret);

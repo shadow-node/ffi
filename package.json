@@ -16,8 +16,7 @@
   "homepage": "http://github.com/shadow-node/ffi",
   "main": "./lib/ffi",
   "dependencies": {
-    "bindings": "~1.2.0",
-    "debug": "2"
+    "debug": "3"
   },
   "devDependencies": {
     "standard": "^11.0.1"

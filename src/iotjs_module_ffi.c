@@ -21,7 +21,7 @@ void *unwrap_ptr_from_jbuffer(jerry_value_t jbuffer) {
 ffi_type* sdffi_jval_to_ffi_type_ptr(jerry_value_t jval) {
   assert(jerry_value_is_string(jval));
 
-  jerry_size_t size = jerry_get_string_size(jval);
+  jerry_size_t size = jerry_get_utf8_string_size(jval);
   char *str = malloc(sizeof(char) * (size + 1));
   sdffi_copy_string_value(str, jval);
 

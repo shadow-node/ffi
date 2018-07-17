@@ -60,7 +60,7 @@ JS_FUNCTION(UnwrapNumberValue) {
 
 JS_FUNCTION(WrapStringValue) {
   jerry_value_t jval = jargv[0];
-  size_t str_len = jerry_get_string_size(jval) + 1;
+  size_t str_len = jerry_get_utf8_string_size(jval) + 1;
   char* str_data = malloc(sizeof(char) * str_len);
   sdffi_copy_string_value(str_data, jval);
 

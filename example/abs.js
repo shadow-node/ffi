@@ -14,7 +14,7 @@
  */
 
 var assert = require('assert')
-var ffi = require('../lib/ffi')
+var ffi = require('../')
 
 var funcPtr = ffi.Callback('int', [ 'int' ], Math.abs)
 var func = ffi.ForeignFunction(funcPtr, 'int', [ 'int' ])

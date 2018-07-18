@@ -14,6 +14,17 @@ static const jerry_object_native_info_t string_pointer_object_type_info = {
   .free_cb = native_string_pointer_free_cb
 };
 
+JS_FUNCTION(Alloc) {
+  size_t size = (size_t)JS_GET_ARG(0, number);
+
+  void *ptr = malloc(size);
+  memset(ptr, 0, size);
+
+  jerry_value_t jval_ptr = wrap_ptr(ptr);
+  jerry_set_object_native_pointer(jval_ptr, ptr, &pointer_object_type_info);
+  return jval_ptr;
+}
+
 JS_FUNCTION(AllocPointer) {
   void **ptrptr = malloc(sizeof(void *));
   memset(ptrptr, 0, sizeof(void *));
@@ -137,6 +148,7 @@ void sdffi_cast_jval_to_pointer(void *ptr, ffi_type *type_ptr, jerry_value_t jva
 }
 
 void LibFFITypes(jerry_value_t exports) {
+  iotjs_jval_set_method(exports, "alloc", Alloc);
   iotjs_jval_set_method(exports, "alloc_pointer", AllocPointer);
   iotjs_jval_set_method(exports, "unwrap_pointer_pointer", UnwrapPointerPointer);
 
@@ -149,4 +161,19 @@ void LibFFITypes(jerry_value_t exports) {
   iotjs_jval_set_method(exports, "wrap_pointers", WrapPointers);
 
   iotjs_jval_set_method(exports, "is_pointer_null", IsPointerNull);
+
+  jerry_value_t jval_constant = jerry_create_object();
+  #define CONSTANT(name, type, value) \
+    do { \
+      iotjs_jval_set_property_##type(jval_constant, #name, value); \
+    } while (0)
+
+  CONSTANT(POINTER_SIZE, number, sizeof(void *));
+  CONSTANT(INT_SIZE, number, sizeof(int));
+  CONSTANT(LONG_SIZE, number, sizeof(long));
+  CONSTANT(SIZE_T_SIZE, number, sizeof(size_t));
+
+  #undef CONSTANT
+  iotjs_jval_set_property_jval(exports, "Constant", jval_constant);
+  jerry_release_value(jval_constant);
 }

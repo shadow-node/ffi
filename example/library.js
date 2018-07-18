@@ -1,5 +1,5 @@
 var assert = require('assert')
-var ffi = require('../lib/ffi')
+var ffi = require('../')
 
 var libm = ffi.Library('libm', {
   'ceil': [ 'double', [ 'double' ] ]

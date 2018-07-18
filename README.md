@@ -1,7 +1,7 @@
 # shadow-ffi
 
 ### ShadowNode Foreign Function Interface
-[![Build Status](https://travis-ci.org/shadow-node/ffi.svg?branch=master)](https://travis-ci.org/shadow-node/ffi)
+[![Build Status](https://travis-ci.com/shadow-node/ffi.svg?branch=master)](https://travis-ci.org/shadow-node/ffi)
 
 `shadow-ffi` is a ShadowNode addon for loading and calling dynamic libraries using
 pure JavaScript. It can be used to create bindings to native libraries without
@@ -40,7 +40,7 @@ current.atoi('1234'); // 1234
 
 ## Installation
 
-A easy way to install shadow-ffi is going to be implemented. Right now it has to be installed with source code documented as next section.
+An easy way to install shadow-ffi is going to be implemented. Right now it has to be installed with source code documented as next section.
 
 ## Source Install / Manual Compilation
 

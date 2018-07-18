@@ -7,14 +7,14 @@ var testSuites = [
   {
     name: 'JS Callback as Foreign Function',
     setup: () => {
-      var callback = new Callback('double', [ 'double' ], Math.ceil)
-      var func = ForeignFunction(callback, 'double', [ 'double' ])
+      var callback = new Callback('string', [ 'string' ], it => it)
+      var func = ForeignFunction(callback, 'string', [ 'string' ])
       func._callback = callback
       return func
     },
     cases: [
       it => {
-        assert(it(1.2) === 2)
+        assert(it('foobar') === 'foobar')
       }
     ]
   }

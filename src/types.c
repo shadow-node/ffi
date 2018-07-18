@@ -114,10 +114,12 @@ ffi_type* sdffi_str_to_ffi_type_ptr(char *str) {
 
   if(strcmp(str, "string") == 0) {
     type_ptr = &ffi_type_pointer;
+  } else if (strcmp(str, "void *") == 0) {
+    type_ptr = &ffi_type_pointer;
   } else if (strcmp(str, "pointer") == 0) {
     type_ptr = &ffi_type_pointer;
   } else if (strcmp(str, "int") == 0) {
-    type_ptr = &ffi_type_slong;
+    type_ptr = &ffi_type_sint;
   } else if (strcmp(str, "double") == 0) {
     type_ptr = &ffi_type_double;
   } else {

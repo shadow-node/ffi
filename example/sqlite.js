@@ -66,8 +66,8 @@ var callback = ffi.Callback('int', ['void *', 'int', stringPtr, stringPtr], func
   var obj = {}
 
   for (var i = 0; i < cols; i++) {
-    var colName = ffi.Types.castToJSType('string', ffi.unwrapPointerPointer(colv))
-    var colData = ffi.Types.castToJSType('string', ffi.unwrapPointerPointer(argv))
+    var colName = ffi.Types.castToJSType('string', colv)
+    var colData = ffi.Types.castToJSType('string', argv)
     obj[colName] = colData
   }
 

@@ -3,7 +3,7 @@ var Callback = require('../lib/callback')
 var ffi = require('../')
 var run = require('./helper/runner')
 
-var test_suites = [
+var testSuites = [
   {
     name: 'Callback properties',
     setup: () => {
@@ -19,4 +19,4 @@ var test_suites = [
   }
 ]
 
-run(__filename, test_suites)
+run(__filename, testSuites)

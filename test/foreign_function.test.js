@@ -1,10 +1,9 @@
 var assert = require('assert')
 var Callback = require('../lib/callback')
 var ForeignFunction = require('../lib/foreign_function')
-var ffi = require('../')
 var run = require('./helper/runner')
 
-var test_suites = [
+var testSuites = [
   {
     name: 'JS Callback as Foreign Function',
     setup: () => {
@@ -21,4 +20,4 @@ var test_suites = [
   }
 ]
 
-run(__filename, test_suites)
+run(__filename, testSuites)

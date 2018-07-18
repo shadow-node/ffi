@@ -26,11 +26,7 @@
     "build": "sh tools/build",
     "test": "node-gyp rebuild --directory test && mocha -gc --reporter spec"
   },
-  "standard": {
-    "ignore": [
-      "test"
-    ]
-  },
+  "standard": {},
   "repository": {
     "type": "git",
     "url": "http://github.com/shadow-node/ffi.git"

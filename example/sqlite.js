@@ -4,6 +4,7 @@
  */
 
 var fs = require('fs')
+var assert = require('assert')
 var ffi = require('../')
 
 /**
@@ -60,7 +61,8 @@ for (var i = 0; i < 5; i++) {
 // running asynchronously, you pass a second callback function that will be
 // invoked when the query has completed.
 var rowCount = 0
-var callback = ffi.Callback('int', ['void *', 'int', stringPtr, stringPtr], function (tmp, cols, argv, colv) {
+var callback = ffi.Callback('int', ['void *', 'int', stringPtr, stringPtr], function (userData, cols, argv, colv) {
+  assert.strictEqual(ffi.Types.castToJSType('string', userData), 'foobar')
   var obj = {}
 
   for (var i = 0; i < cols; i++) {
@@ -75,7 +77,7 @@ var callback = ffi.Callback('int', ['void *', 'int', stringPtr, stringPtr], func
   return 0
 })
 
-var b = ffi.allocPointer()
+var b = ffi.Types.castToCType('string', 'foobar')
 // TODO: Async calls, run function in a different thread
 // SQLite3.sqlite3_exec.async(db, 'SELECT * FROM foo;', callback, b, null, function (err, ret) {
 SQLite3.sqlite3_exec(db, 'SELECT * FROM foo;', callback, b, null)

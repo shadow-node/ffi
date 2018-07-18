@@ -4,7 +4,6 @@
  */
 
 var fs = require('fs')
-var ref = require('ref')
 var ffi = require('../')
 
 /**
@@ -16,12 +15,10 @@ var dbName = process.argv[2] || 'test.sqlite3'
 /**
  * "ref" types that the sqlite3 functions will use.
  */
-
-var sqlite3 = 'void' // `sqlite3` is an "opaque" type, so we don't know its layout
-var sqlite3Ptr = ref.refType(sqlite3)
-var sqlite3PtrPtr = ref.refType(sqlite3Ptr)
-var sqlite3ExecCallback = 'pointer' // TODO: use ffi.Callback when #76 is implemented
-var stringPtr = ref.refType('string')
+var sqlite3Ptr = 'pointer' // `sqlite3` is an "opaque" type, so we don't know its layout
+var sqlite3PtrPtr = 'pointer'
+var sqlite3ExecCallback = 'pointer'
+var stringPtr = 'pointer'
 
 // create FFI'd versions of the libsqlite3 function we're interested in
 var SQLite3 = ffi.Library('libsqlite3', {
@@ -29,14 +26,14 @@ var SQLite3 = ffi.Library('libsqlite3', {
   'sqlite3_open': [ 'int', [ 'string', sqlite3PtrPtr ] ],
   'sqlite3_close': [ 'int', [ sqlite3Ptr ] ],
   'sqlite3_changes': [ 'int', [ sqlite3Ptr ] ],
-  'sqlite3_exec': [ 'int', [ sqlite3Ptr, 'string', sqlite3ExecCallback, 'void *', stringPtr ] ]
+  'sqlite3_exec': [ 'int', [ sqlite3Ptr, 'string', sqlite3ExecCallback, 'pointer', stringPtr ] ]
 })
 
 // print out the "libsqlite3" version number
 console.log('Using libsqlite3 version %j...', SQLite3.sqlite3_libversion())
 
 // create a storage area for the db pointer SQLite3 gives us
-var db = ref.alloc(sqlite3PtrPtr)
+var db = ffi.allocPointer()
 
 // open the database object
 console.log('Opening %j...', dbName)
@@ -44,7 +41,7 @@ SQLite3.sqlite3_open(dbName, db)
 
 // we don't care about the `sqlite **`, but rather the `sqlite *` that it's
 // pointing to, so we must deref()
-db = db.deref()
+db = ffi.unwrapPointerPointer(db)
 
 // execute a couple SQL queries to create the table "foo" and ensure it's empty
 console.log('Creating and/or clearing foo table...')
@@ -67,8 +64,8 @@ var callback = ffi.Callback('int', ['void *', 'int', stringPtr, stringPtr], func
   var obj = {}
 
   for (var i = 0; i < cols; i++) {
-    var colName = colv.deref()
-    var colData = argv.deref()
+    var colName = ffi.Types.castToJSType('string', ffi.unwrapPointerPointer(colv))
+    var colData = ffi.Types.castToJSType('string', ffi.unwrapPointerPointer(argv))
     obj[colName] = colData
   }
 
@@ -78,12 +75,13 @@ var callback = ffi.Callback('int', ['void *', 'int', stringPtr, stringPtr], func
   return 0
 })
 
-var b = Buffer.from('test')
-SQLite3.sqlite3_exec.async(db, 'SELECT * FROM foo;', callback, b, null, function (err, ret) {
-  if (err) throw err
-  console.log('Total Rows: %j', rowCount)
-  console.log('Changes: %j', SQLite3.sqlite3_changes(db))
-  console.log('Closing...')
-  SQLite3.sqlite3_close(db)
-  fs.unlinkSync(dbName)
-})
+var b = ffi.allocPointer()
+// TODO: Async calls, run function in a different thread
+// SQLite3.sqlite3_exec.async(db, 'SELECT * FROM foo;', callback, b, null, function (err, ret) {
+SQLite3.sqlite3_exec(db, 'SELECT * FROM foo;', callback, b, null)
+console.log('Total Rows: %j', rowCount)
+console.log('Changes: %j', SQLite3.sqlite3_changes(db))
+console.log('Closing...')
+SQLite3.sqlite3_close(db)
+console.log('Removing DB...')
+fs.unlinkSync(dbName)

@@ -7,6 +7,7 @@ static void native_closure_pointer_free_cb(void* native_p) {
 
   free(info->code_loc);
   jerry_release_value(info->callback);
+  free(info);
 
   ffi_closure_free(closure);
 }
@@ -18,16 +19,17 @@ static const jerry_object_native_info_t closure_pointer_object_type_info = {
 void sdf_dispatchToJs(sdffi_callback_info_t *info, void *retval, void **parameters) {
   jerry_value_t jval_callback = info->callback;
   ffi_cif *cif_ptr = info->cif;
-  jerry_value_t *jargs = malloc(sizeof(jerry_value_t) * cif_ptr->nargs);
+  jerry_value_t jargs[cif_ptr->nargs];
   for (unsigned idx = 0; idx < cif_ptr->nargs; idx ++) {
     jargs[idx] = wrap_ptr(parameters[idx]);
   }
-  jerry_value_t jval_ret = jerry_call_function(jval_callback, jerry_create_null(), jargs, cif_ptr->nargs);
+  jerry_value_t jval_func_this = jerry_create_null();
+  jerry_value_t jval_ret = jerry_call_function(jval_callback, jval_func_this, jargs, cif_ptr->nargs);
+  jerry_release_value(jval_func_this);
 
   for (unsigned idx = 0; idx < cif_ptr->nargs; idx ++) {
     jerry_release_value(jargs[idx]);
   }
-  free(jargs);
   if (jerry_value_has_error_flag(jval_ret)) {
     jerry_value_t jval_err_str = jerry_value_to_string(jval_ret);
     jerry_size_t size = jerry_get_utf8_string_size(jval_err_str);
@@ -75,7 +77,6 @@ JS_FUNCTION(WrapCallback) {
     return jerry_create_number(status);
   }
 
-  jerry_release_value(jval_callback);
   jerry_value_t jval_ret = wrap_ptr(closure);
   jerry_set_object_native_pointer(jval_ret, closure, &closure_pointer_object_type_info);
   return jval_ret;

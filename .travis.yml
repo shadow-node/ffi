@@ -13,6 +13,7 @@ script:
   # Output useful info for debugging
   - node --version
   - npm --version
+  - npm run lint
   # Run tests
   - npm run configure
   # TODO: fetch shadow-node headers to build

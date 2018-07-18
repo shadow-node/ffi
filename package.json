@@ -22,6 +22,7 @@
     "standard": "^11.0.1"
   },
   "scripts": {
+    "lint": "standard",
     "configure": "sh tools/configure",
     "build": "sh tools/build",
     "test": "node-gyp rebuild --directory test && mocha -gc --reporter spec"

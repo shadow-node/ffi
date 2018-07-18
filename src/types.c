@@ -36,7 +36,10 @@ JS_FUNCTION(AllocPointer) {
 
 JS_FUNCTION(UnwrapPointerPointer) {
   void **ptrptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  return wrap_ptr(*ptrptr);
+  int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
+
+  void *ptr = ptrptr[idx];
+  return wrap_ptr(ptr);
 }
 
 JS_FUNCTION(WrapIntValue) {
@@ -51,7 +54,10 @@ JS_FUNCTION(WrapIntValue) {
 
 JS_FUNCTION(UnwrapIntValue) {
   int *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  return jerry_create_number((double)*ptr);
+  int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
+
+  int val = ptr[idx];
+  return jerry_create_number((double)val);
 }
 
 JS_FUNCTION(WrapNumberValue) {
@@ -66,7 +72,10 @@ JS_FUNCTION(WrapNumberValue) {
 
 JS_FUNCTION(UnwrapNumberValue) {
   double *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  return jerry_create_number(*ptr);
+  int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
+
+  double val = ptr[idx];
+  return jerry_create_number(val);
 }
 
 JS_FUNCTION(WrapStringValue) {
@@ -86,7 +95,10 @@ JS_FUNCTION(WrapStringValue) {
 
 JS_FUNCTION(UnwrapStringValue) {
   jerry_char_t **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  return jerry_create_string(*ptr);
+  int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
+
+  jerry_char_t *str_ptr = ptr[idx];
+  return jerry_create_string(str_ptr);
 }
 
 JS_FUNCTION(WrapPointers) {

@@ -111,17 +111,10 @@ JS_FUNCTION(FFICall) {
   return jerry_create_undefined();
 }
 
-JS_FUNCTION(IsPtrNull) {
-  void *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  return jerry_create_boolean(ptr == NULL);
-}
-
 void LibFFI(jerry_value_t exports)
 {
   iotjs_jval_set_method(exports, "ffi_prep_cif", FFIPrepCif);
   iotjs_jval_set_method(exports, "ffi_call", FFICall);
-
-  iotjs_jval_set_method(exports, "is_ptr_null", IsPtrNull);
 
   #define WRAP(name) \
     do { \

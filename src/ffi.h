@@ -12,6 +12,11 @@
 #include <iotjs_objectwrap.h>
 #include "iotjs_module_buffer.h"
 
+#define JS_GET_ARG_IF_EXIST_OR_DEFAULT(index, type, default_val)  \
+  ((jargc > index) && jerry_value_is_##type(jargv[index])     \
+       ? iotjs_jval_as_##type(jargv[index])                   \
+       : default_val)
+
 typedef struct {
   ffi_cif *cif;
   ffi_closure *closure;

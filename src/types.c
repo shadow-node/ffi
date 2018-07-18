@@ -27,7 +27,7 @@ JS_FUNCTION(Alloc) {
 
 JS_FUNCTION(AllocPointer) {
   void **ptrptr = malloc(sizeof(void *));
-  memset(ptrptr, 0, sizeof(void *));
+  *ptrptr = NULL;
 
   jerry_value_t jval_ptr = wrap_ptr(ptrptr);
   jerry_set_object_native_pointer(jval_ptr, ptrptr, &pointer_object_type_info);
@@ -39,9 +39,9 @@ JS_FUNCTION(UnwrapPointerPointer) {
   return wrap_ptr(*ptrptr);
 }
 
-JS_FUNCTION(WrapIntegerValue) {
-  long val = (long)JS_GET_ARG(0, number);
-  long *ptr = malloc(sizeof(long));
+JS_FUNCTION(WrapIntValue) {
+  int val = (int)JS_GET_ARG(0, number);
+  int *ptr = malloc(sizeof(int));
   *ptr = val;
 
   jerry_value_t jval_ptr = wrap_ptr(ptr);
@@ -49,8 +49,8 @@ JS_FUNCTION(WrapIntegerValue) {
   return jval_ptr;
 }
 
-JS_FUNCTION(UnwrapIntegerValue) {
-  long *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+JS_FUNCTION(UnwrapIntValue) {
+  int *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   return jerry_create_number((double)*ptr);
 }
 
@@ -154,8 +154,8 @@ void LibFFITypes(jerry_value_t exports) {
 
   iotjs_jval_set_method(exports, "wrap_number_value", WrapNumberValue);
   iotjs_jval_set_method(exports, "unwrap_number_value", UnwrapNumberValue);
-  iotjs_jval_set_method(exports, "wrap_integer_value", WrapIntegerValue);
-  iotjs_jval_set_method(exports, "unwrap_integer_value", UnwrapIntegerValue);
+  iotjs_jval_set_method(exports, "wrap_int_value", WrapIntValue);
+  iotjs_jval_set_method(exports, "unwrap_int_value", UnwrapIntValue);
   iotjs_jval_set_method(exports, "wrap_string_value", WrapStringValue);
   iotjs_jval_set_method(exports, "unwrap_string_value", UnwrapStringValue);
   iotjs_jval_set_method(exports, "wrap_pointers", WrapPointers);

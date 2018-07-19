@@ -1,5 +1,8 @@
 #include "ffi.h"
 
+typedef void *pointer;
+typedef char byte;
+
 static const jerry_object_native_info_t pointer_object_type_info = {
   .free_cb = free
 };
@@ -20,7 +23,7 @@ static const jerry_object_native_info_t string_pointer_object_type_info = {
 JS_FUNCTION(Alloc) {
   size_t size = (size_t)JS_GET_ARG(0, number);
 
-  void *ptr = malloc(size);
+  byte *ptr = malloc(size);
   memset(ptr, 0, size);
 
   jerry_value_t jval_ptr = wrap_ptr(ptr);
@@ -33,7 +36,7 @@ JS_FUNCTION(Alloc) {
  * also assigns `NULL` to newly allocated pointer
  */
 JS_FUNCTION(AllocPointer) {
-  void **ptrptr = malloc(sizeof(void *));
+  pointer *ptrptr = malloc(sizeof(void *));
   *ptrptr = NULL;
 
   jerry_value_t jval_ptr = wrap_ptr(ptrptr);
@@ -44,12 +47,25 @@ JS_FUNCTION(AllocPointer) {
 /**
  * Deref a pointer of pointer to get nested pointer
  */
-JS_FUNCTION(UnwrapPointerPointer) {
-  void **ptrptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
+JS_FUNCTION(DerefPointerPointer) {
+  byte *ptrptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  int offset = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
 
-  void *ptr = ptrptr[idx];
-  return wrap_ptr(ptr);
+  pointer *ptr = (pointer *) (ptrptr + offset);
+  return wrap_ptr(*ptr);
+}
+
+/**
+ * Write an pointer value to pointed location with an offset
+ */
+JS_FUNCTION(WritePointerValue) {
+  byte *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  int offset = (int) JS_GET_ARG(1, number);
+  pointer ptr_val = unwrap_ptr_from_jbuffer(JS_GET_ARG(2, object));
+
+  pointer *data_ptr = (pointer *) (ptr + offset);
+  *data_ptr = ptr_val;
+  return jerry_create_undefined();
 }
 
 /**
@@ -69,12 +85,26 @@ JS_FUNCTION(WrapIntValue) {
 /**
  * Deref a pointer of int to get nested int value
  */
-JS_FUNCTION(UnwrapIntValue) {
-  int *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
+JS_FUNCTION(DerefIntPointer) {
+  byte *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  int offset = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
 
-  int val = ptr[idx];
+  int *data_ptr = (int *) (ptr + offset);
+  int val = *data_ptr;
   return jerry_create_number((double)val);
+}
+
+/**
+ * Write an int value to pointed location with an offset
+ */
+JS_FUNCTION(WriteIntValue) {
+  byte *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  int offset = (int) JS_GET_ARG(1, number);
+  int val = (int) JS_GET_ARG(2, number);
+
+  int *data_ptr = (int *) (ptr + offset);
+  *data_ptr = val;
+  return jerry_create_undefined();
 }
 
 /**
@@ -94,12 +124,26 @@ JS_FUNCTION(WrapNumberValue) {
 /**
  * Deref a pointer of double to get nested double value
  */
-JS_FUNCTION(UnwrapNumberValue) {
+JS_FUNCTION(DerefNumberPointer) {
   double *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
+  int offset = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
 
-  double val = ptr[idx];
+  double *data_ptr = (double *) (ptr + offset);
+  double val = *data_ptr;
   return jerry_create_number(val);
+}
+
+/**
+ * Write an double value to pointed location with an offset
+ */
+JS_FUNCTION(WriteNumberValue) {
+  byte *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  int offset = (int) JS_GET_ARG(1, number);
+  double val = (double) JS_GET_ARG(2, number);
+
+  double *data_ptr = (double *) (ptr + offset);
+  *data_ptr = val;
+  return jerry_create_undefined();
 }
 
 /**
@@ -123,12 +167,30 @@ JS_FUNCTION(WrapStringValue) {
 /**
  * Deref a pointer of pointer of character to get nested pointer of character
  */
-JS_FUNCTION(UnwrapStringValue) {
+JS_FUNCTION(DerefStringPointer) {
   jerry_char_t **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
-  int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
+  int offset = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
 
-  jerry_char_t *str_ptr = ptr[idx];
+  jerry_char_t **data_ptr = (jerry_char_t **) (ptr + offset);
+  jerry_char_t *str_ptr = *data_ptr;
   return jerry_create_string(str_ptr);
+}
+
+/**
+ * Write an double value to pointed location with an offset
+ */
+JS_FUNCTION(WriteStringValue) {
+  byte *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  int offset = (int) JS_GET_ARG(1, number);
+
+  jerry_value_t jval = jargv[2];
+  size_t str_len = jerry_get_utf8_string_size(jval) + 1;
+  char* str_data = malloc(sizeof(char) * str_len);
+  sdffi_copy_string_value(str_data, jval);
+
+  char **data_ptr = (char **) (ptr + offset);
+  *data_ptr = str_data;
+  return jerry_create_undefined();
 }
 
 /**
@@ -209,15 +271,21 @@ void sdffi_cast_jval_to_pointer(void *ptr, ffi_type *type_ptr, jerry_value_t jva
 void LibFFITypes(jerry_value_t exports) {
   iotjs_jval_set_method(exports, "alloc", Alloc);
   iotjs_jval_set_method(exports, "alloc_pointer", AllocPointer);
-  iotjs_jval_set_method(exports, "unwrap_pointer_pointer", UnwrapPointerPointer);
+  iotjs_jval_set_method(exports, "wrap_pointers", WrapPointers);
+  iotjs_jval_set_method(exports, "deref_pointer_pointer", DerefPointerPointer);
+  iotjs_jval_set_method(exports, "write_pointer_value", WritePointerValue);
 
   iotjs_jval_set_method(exports, "wrap_number_value", WrapNumberValue);
-  iotjs_jval_set_method(exports, "unwrap_number_value", UnwrapNumberValue);
+  iotjs_jval_set_method(exports, "deref_number_pointer", DerefNumberPointer);
+  iotjs_jval_set_method(exports, "write_number_value", WriteNumberValue);
+
   iotjs_jval_set_method(exports, "wrap_int_value", WrapIntValue);
-  iotjs_jval_set_method(exports, "unwrap_int_value", UnwrapIntValue);
+  iotjs_jval_set_method(exports, "deref_int_pointer", DerefIntPointer);
+  iotjs_jval_set_method(exports, "write_int_value", WriteIntValue);
+
   iotjs_jval_set_method(exports, "wrap_string_value", WrapStringValue);
-  iotjs_jval_set_method(exports, "unwrap_string_value", UnwrapStringValue);
-  iotjs_jval_set_method(exports, "wrap_pointers", WrapPointers);
+  iotjs_jval_set_method(exports, "deref_string_pointer", DerefStringPointer);
+  iotjs_jval_set_method(exports, "write_string_value", WriteStringValue);
 
   iotjs_jval_set_method(exports, "is_pointer_null", IsPointerNull);
 

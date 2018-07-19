@@ -42,7 +42,7 @@ SQLite3.sqlite3_open(dbName, db)
 
 // we don't care about the `sqlite **`, but rather the `sqlite *` that it's
 // pointing to, so we must deref()
-db = ffi.unwrapPointerPointer(db)
+db = ffi.derefPointerPointer(db)
 
 // execute a couple SQL queries to create the table "foo" and ensure it's empty
 console.log('Creating and/or clearing foo table...')

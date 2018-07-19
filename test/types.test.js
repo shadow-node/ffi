@@ -32,7 +32,7 @@ var testSuites = [
     cases: [
       it => {
         var ret = Types.castToJSType(it[0]._type, it[0])
-        // eslint-disable-next-line
+        // eslint-disable-next-line valid-typeof
         assert(typeof ret === it[1])
       }
     ]

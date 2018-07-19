@@ -25,7 +25,7 @@
     "lint": "standard",
     "configure": "sh tools/configure",
     "build": "sh tools/build",
-    "test": "node-gyp rebuild --directory test && mocha -gc --reporter spec"
+    "test": "npm run build; tools/test.py"
   },
   "standard": {},
   "repository": {

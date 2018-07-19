@@ -4,11 +4,23 @@ from os import environ
 from glob import glob
 
 def main():
-    test_files = glob('test/*.test.js')
-    for test_files in test_files:
-        retcode = call(['iotjs', test_files])
+    test_files = glob('test/**/*.test.js', recursive=True)
+
+    success = 0
+    failed = 0
+
+    for test_file in test_files:
+        print(f'✨   Start Test: {test_file}')
+        retcode = call(['iotjs', test_file])
         if retcode is not 0:
-            exit(retcode)
+            failed += 1
+            print(f'💀   Failed Test: {test_file}')
+        else:
+            success += 1
+
+    if failed > 0:
+        exit(1)
+
 
 if __name__ == '__main__':
     main()

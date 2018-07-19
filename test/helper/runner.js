@@ -18,6 +18,10 @@ function run (filename, suites) {
       runCases(suite.setup)
     }
 
+    if (statistic.failed > 0) {
+      process.exitCode = 1
+    }
+
     function runCases (setup, setupIdx) {
       suite.cases.forEach((esac, idx) => {
         var caseName = suite.name + (setupIdx != null ? '#setup' + setupIdx : '') + '#case' + idx

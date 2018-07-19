@@ -5,8 +5,9 @@ static void native_closure_pointer_free_cb(void* native_p) {
   ffi_closure *closure = (ffi_closure *)native_p;
   sdffi_callback_info_t *info = (sdffi_callback_info_t *)closure->user_data;
 
+  // TODO: info->callback shall be acquired for preventing it from being gc-ed
+  // jerry_release_value(info->callback);
   free(info->code_loc);
-  jerry_release_value(info->callback);
   free(info);
 
   ffi_closure_free(closure);
@@ -61,14 +62,15 @@ JS_FUNCTION(WrapCallback) {
 
   ffi_status status;
   ffi_closure *closure;
-  void **code = malloc(sizeof(void *));
+  void **code_loc = malloc(sizeof(void *));
   sdffi_callback_info_t *user_data = malloc(sizeof(sdffi_callback_info_t));
   user_data->cif = callback_cif;
-  user_data->code_loc = code;
-  user_data->callback = jerry_acquire_value(jval_callback);
+  user_data->code_loc = code_loc;
+  // TODO: user_data->callback shall be acquired for preventing it from being gc-ed
+  user_data->callback = jval_callback;
 
-  closure = ffi_closure_alloc(sizeof(ffi_closure), code);
-  status = ffi_prep_closure_loc(closure, callback_cif, ffiInvoke, user_data, *code);
+  closure = ffi_closure_alloc(sizeof(ffi_closure), code_loc);
+  status = ffi_prep_closure_loc(closure, callback_cif, ffiInvoke, user_data, *code_loc);
   if (status != FFI_OK) {
     jerry_release_value(user_data->callback);
     free(user_data->code_loc);

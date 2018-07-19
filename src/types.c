@@ -153,7 +153,9 @@ void sdffi_cast_jval_to_pointer(void *ptr, ffi_type *type_ptr, jerry_value_t jva
     if (type_ptr == &ffi_type_double) {
       *(double *)ptr = jerry_get_number_value(jval);
     } else if (type_ptr == &ffi_type_slong) {
-      *(long *)ptr = (long)jerry_get_number_value(jval);
+      *(long *)ptr = (long) jerry_get_number_value(jval);
+    } else if (type_ptr == &ffi_type_sint) {
+      *(int *)ptr = (int) jerry_get_number_value(jval);
     }
   } else if (type_ptr == &ffi_type_pointer) {
     void *unwrap_ptr = unwrap_ptr_from_jbuffer(jval);

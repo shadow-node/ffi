@@ -5,16 +5,52 @@ var run = require('./helper/runner')
 
 var testSuites = [
   {
-    name: 'JS Callback as Foreign Function',
-    setup: () => {
-      var callback = new Callback('string', [ 'string' ], it => it)
-      var func = ForeignFunction(callback, 'string', [ 'string' ])
-      func._callback = callback
-      return func
-    },
+    name: 'JS Callback as Foreign Function with string arguments',
+    setups: [
+      () => {
+        var callback = new Callback('string', [ 'string' ], it => it)
+        var func = ForeignFunction(callback, 'string', [ 'string' ])
+        func._callback = callback
+        return func
+      }
+    ],
     cases: [
       it => {
         assert(it('foobar') === 'foobar')
+      }
+    ]
+  },
+  {
+    name: 'JS Callback as Foreign Function with number arguments',
+    setups: [
+      () => {
+        var callback = new Callback('int', [ 'int' ], it => it)
+        var func = ForeignFunction(callback, 'int', [ 'int' ])
+        func._callback = callback
+        return func
+      },
+      () => {
+        var callback = new Callback('double', [ 'int' ], it => it)
+        var func = ForeignFunction(callback, 'double', [ 'int' ])
+        func._callback = callback
+        return func
+      },
+      () => {
+        var callback = new Callback('double', [ 'double' ], it => it)
+        var func = ForeignFunction(callback, 'double', [ 'double' ])
+        func._callback = callback
+        return func
+      },
+      () => {
+        var callback = new Callback('int', [ 'double' ], it => it)
+        var func = ForeignFunction(callback, 'int', [ 'double' ])
+        func._callback = callback
+        return func
+      }
+    ],
+    cases: [
+      it => {
+        assert(it(123) === 123)
       }
     ]
   }

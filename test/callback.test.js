@@ -6,9 +6,11 @@ var run = require('./helper/runner')
 var testSuites = [
   {
     name: 'Callback properties',
-    setup: () => {
-      return new Callback('double', [ 'double' ], it => Math.abs(it))
-    },
+    setups: [
+      () => {
+        return new Callback('double', [ 'double' ], it => Math.abs(it))
+      }
+    ],
     cases: [
       it => {
         assert(!ffi.isPointerNull(it._codePtr))

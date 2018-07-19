@@ -125,7 +125,7 @@ JS_FUNCTION(WrapNumberValue) {
  * Deref a pointer of double to get nested double value
  */
 JS_FUNCTION(DerefNumberPointer) {
-  double *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  byte *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   int offset = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
 
   double *data_ptr = (double *) (ptr + offset);
@@ -168,7 +168,7 @@ JS_FUNCTION(WrapStringValue) {
  * Deref a pointer of pointer of character to get nested pointer of character
  */
 JS_FUNCTION(DerefStringPointer) {
-  jerry_char_t **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  byte *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   int offset = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
 
   jerry_char_t **data_ptr = (jerry_char_t **) (ptr + offset);

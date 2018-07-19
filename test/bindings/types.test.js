@@ -31,6 +31,11 @@ var testSuites = [
         var pointer = bindings.alloc(8)
         bindings.write_string_value(pointer, 0, 'foobar')
         return [ pointer, 0 ]
+      },
+      () => {
+        var pointer = bindings.alloc(16)
+        bindings.write_string_value(pointer, 8, 'foobar')
+        return [ pointer, 8 ]
       }
     ],
     cases: [
@@ -49,6 +54,13 @@ var testSuites = [
         bindings.write_pointer_value(pointer, 0, data)
         pointer._ref = data
         return [ pointer, 0 ]
+      },
+      () => {
+        var pointer = bindings.alloc(16)
+        var data = bindings.wrap_string_value('foobar')
+        bindings.write_pointer_value(pointer, 8, data)
+        pointer._ref = data
+        return [ pointer, 8 ]
       }
     ],
     cases: [

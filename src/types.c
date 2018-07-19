@@ -14,6 +14,9 @@ static const jerry_object_native_info_t string_pointer_object_type_info = {
   .free_cb = native_string_pointer_free_cb
 };
 
+/**
+ * Allocates a requested size block of memory in heap
+ */
 JS_FUNCTION(Alloc) {
   size_t size = (size_t)JS_GET_ARG(0, number);
 
@@ -25,6 +28,10 @@ JS_FUNCTION(Alloc) {
   return jval_ptr;
 }
 
+/**
+ * Allocates a pointer, mostly same as `Alloc` except `AllocPointer`
+ * also assigns `NULL` to newly allocated pointer
+ */
 JS_FUNCTION(AllocPointer) {
   void **ptrptr = malloc(sizeof(void *));
   *ptrptr = NULL;
@@ -34,6 +41,9 @@ JS_FUNCTION(AllocPointer) {
   return jval_ptr;
 }
 
+/**
+ * Deref a pointer of pointer to get nested pointer
+ */
 JS_FUNCTION(UnwrapPointerPointer) {
   void **ptrptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
@@ -42,6 +52,10 @@ JS_FUNCTION(UnwrapPointerPointer) {
   return wrap_ptr(ptr);
 }
 
+/**
+ * Allocates a int block in heap, and assigns number of the JS value to it
+ * Returns a pointer to the newly allocated block
+ */
 JS_FUNCTION(WrapIntValue) {
   int val = (int)JS_GET_ARG(0, number);
   int *ptr = malloc(sizeof(int));
@@ -52,6 +66,9 @@ JS_FUNCTION(WrapIntValue) {
   return jval_ptr;
 }
 
+/**
+ * Deref a pointer of int to get nested int value
+ */
 JS_FUNCTION(UnwrapIntValue) {
   int *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
@@ -60,6 +77,10 @@ JS_FUNCTION(UnwrapIntValue) {
   return jerry_create_number((double)val);
 }
 
+/**
+ * Allocates a double block in heap, and assigns number of the JS value to it
+ * Returns a pointer to the newly allocated block
+ */
 JS_FUNCTION(WrapNumberValue) {
   double val = JS_GET_ARG(0, number);
   double *ptr = malloc(sizeof(double));
@@ -70,6 +91,9 @@ JS_FUNCTION(WrapNumberValue) {
   return jval_ptr;
 }
 
+/**
+ * Deref a pointer of double to get nested double value
+ */
 JS_FUNCTION(UnwrapNumberValue) {
   double *ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
@@ -78,6 +102,10 @@ JS_FUNCTION(UnwrapNumberValue) {
   return jerry_create_number(val);
 }
 
+/**
+ * Allocates a sequence of characters block in heap, and assigns utf8 string of the JS value to it
+ * Returns a pointer to the newly allocated block
+ */
 JS_FUNCTION(WrapStringValue) {
   jerry_value_t jval = jargv[0];
   size_t str_len = jerry_get_utf8_string_size(jval) + 1;
@@ -87,12 +115,14 @@ JS_FUNCTION(WrapStringValue) {
   char **ptr = malloc(sizeof(char *));
   *ptr = str_data;
 
-
   jerry_value_t jval_ptr = wrap_ptr(ptr);
   jerry_set_object_native_pointer(jval_ptr, ptr, &string_pointer_object_type_info);
   return jval_ptr;
 }
 
+/**
+ * Deref a pointer of pointer of character to get nested pointer of character
+ */
 JS_FUNCTION(UnwrapStringValue) {
   jerry_char_t **ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   int idx = (int) JS_GET_ARG_IF_EXIST_OR_DEFAULT(1, number, 0);
@@ -101,6 +131,10 @@ JS_FUNCTION(UnwrapStringValue) {
   return jerry_create_string(str_ptr);
 }
 
+/**
+ * Allocates a sequence of pointers block in heap, and assigns pointers to it
+ * Returns a pointer to the newly allocated block
+ */
 JS_FUNCTION(WrapPointers) {
   size_t num_args = JS_GET_ARG(0, number);
   void** ptrptr = malloc(sizeof(void*) * num_args);
@@ -116,11 +150,17 @@ JS_FUNCTION(WrapPointers) {
   return jval_ptr;
 }
 
+/**
+ * Function that check if given pointer is a `NULL`
+ */
 JS_FUNCTION(IsPointerNull) {
   void* ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   return jerry_create_boolean(ptr == NULL);
 }
 
+/**
+ * Function that coalesce string type name into actual ffi type reference
+ */
 ffi_type* sdffi_str_to_ffi_type_ptr(char *str) {
   ffi_type* type_ptr;
 
@@ -142,6 +182,9 @@ ffi_type* sdffi_str_to_ffi_type_ptr(char *str) {
   return type_ptr;
 }
 
+/**
+ * Function that converts js callback return value into C types
+ */
 void sdffi_cast_jval_to_pointer(void *ptr, ffi_type *type_ptr, jerry_value_t jval) {
   if (jerry_value_is_string(jval)) {
     jerry_length_t len = jerry_get_string_length(jval);

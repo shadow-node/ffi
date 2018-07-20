@@ -7,6 +7,7 @@ mkdir -p $BUILD_DIR
 
 cd $BUILD_DIR
 
+cmake ${PROJECT_ROOT}
 make
 
 cd -

@@ -23,7 +23,6 @@
   },
   "scripts": {
     "lint": "standard",
-    "configure": "sh tools/configure",
     "build": "sh tools/build",
     "test": "npm run build; tools/test.py"
   },

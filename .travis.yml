@@ -14,9 +14,8 @@ script:
   - node --version
   - npm --version
   - npm run lint
-  # Run tests
-  - npm run configure
   # TODO: fetch shadow-node headers to build
   # - npm run build
+  # Run tests
   # TODO: add tests
   # - npm test

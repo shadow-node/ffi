@@ -6,7 +6,9 @@ enable_language(ASM)
 set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
 
 add_definitions(-DDEBUG -DPIC -DFFI_BUILDING -DHAVE_CONFIG_H)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} include)
+include_directories(
+  ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_BINARY_DIR} ${CMAKE_BINARY_DIR}/include)
 
 set(LIBFFI_SOURCE_FILES
   src/prep_cif.c
@@ -29,10 +31,13 @@ else()
     src/x86/sysv.S)
 endif()
 
-add_custom_command(OUTPUT include/ffi.h include/ffitarget.h fficofig.h
-  COMMAND ./configure)
+add_custom_target(ffi_headers echo ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
+  BYPRODUCTS include/ffi.h fficofig.h
+  COMMAND ${CMAKE_SOURCE_DIR}/configure --enable-static --disable-shared --disable-builddir --with-pic
+  VERBATIM)
 
 add_library(ffi STATIC ${LIBFFI_SOURCE_FILES})
+add_dependencies(ffi ffi_headers)
 
 install(TARGETS ffi DESTINATION ${CMAKE_BINARY_DIR})
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ DESTINATION include)

@@ -17,6 +17,14 @@ set(LIBFFI_SOURCE_FILES
   src/java_raw_api.c
   src/closures.c)
 
+if (CMAKE_SYSTEM_PROCESSOR MATCHES aarch64)
+  list(APPEND LIBFFI_SOURCE_FILES
+    src/arm/ffi.c)
+  list(APPEND LIBFFI_SOURCE_FILES
+    src/arm/sysv.S
+    src/arm/trampoline.S)
+endif()
+
 list(APPEND LIBFFI_SOURCE_FILES
   src/x86/ffi.c
   src/x86/ffi64.c)

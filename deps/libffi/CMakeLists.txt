@@ -17,6 +17,8 @@ set(LIBFFI_SOURCE_FILES
   src/java_raw_api.c
   src/closures.c)
 
+message("djashdkajsdhakjshd ===== ${CMAKE_SYSTEM_PROCESSOR})
+
 if (CMAKE_SYSTEM_PROCESSOR MATCHES aarch64)
   message("arm64 >>>")
   list(APPEND LIBFFI_SOURCE_FILES

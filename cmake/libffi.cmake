@@ -1,3 +1,4 @@
+message("!!!!!!!! ${CMAKE_SYSTEM_PROCESSOR}")
 ExternalProject_Add(ffi
   PREFIX deps/libffi
   SOURCE_DIR ${CMAKE_SOURCE_DIR}/deps/libffi

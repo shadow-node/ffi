@@ -6,10 +6,11 @@
 #include <ffi.h>
 #include <dlfcn.h>
 
-#include <iotjs.h>
-#include <iotjs_def.h>
-#include <iotjs_binding.h>
-#include <iotjs_objectwrap.h>
+#include <shadow-node/uv.h>
+#include <shadow-node/iotjs.h>
+#include <shadow-node/iotjs_def.h>
+#include <shadow-node/iotjs_binding.h>
+#include <shadow-node/iotjs_objectwrap.h>
 #include "iotjs_module_buffer.h"
 
 #define JS_GET_ARG_IF_EXIST_OR_DEFAULT(index, type, default_val)  \

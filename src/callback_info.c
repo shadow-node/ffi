@@ -1,5 +1,4 @@
 #include "ffi.h"
-#include "iotjs_module_buffer.h"
 
 static void native_closure_pointer_free_cb(void* native_p) {
   ffi_closure *closure = (ffi_closure *)native_p;

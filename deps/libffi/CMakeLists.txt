@@ -18,6 +18,7 @@ set(LIBFFI_SOURCE_FILES
   src/closures.c)
 
 if (CMAKE_SYSTEM_PROCESSOR MATCHES aarch64)
+  message("arm64 >>>")
   list(APPEND LIBFFI_SOURCE_FILES
     src/arm/ffi.c)
   list(APPEND LIBFFI_SOURCE_FILES

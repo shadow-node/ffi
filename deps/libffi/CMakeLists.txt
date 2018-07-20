@@ -24,8 +24,7 @@ if (CMAKE_EXTERNAL_SYSTEM_PROCESSOR MATCHES aarch64)
   list(APPEND LIBFFI_SOURCE_FILES
     src/arm/ffi.c)
   list(APPEND LIBFFI_SOURCE_FILES
-    src/arm/sysv.S
-    src/arm/trampoline.S)
+    src/arm/sysv.S)
 else()
   list(APPEND LIBFFI_SOURCE_FILES
     src/x86/ffi.c

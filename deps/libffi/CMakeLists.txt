@@ -23,20 +23,19 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES aarch64)
   list(APPEND LIBFFI_SOURCE_FILES
     src/arm/sysv.S
     src/arm/trampoline.S)
-endif()
-
-list(APPEND LIBFFI_SOURCE_FILES
-  src/x86/ffi.c
-  src/x86/ffi64.c)
-
-if (CMAKE_SYSTEM_NAME MATCHES Darwin)
-  list(APPEND LIBFFI_SOURCE_FILES
-    src/x86/darwin.S
-    src/x86/darwin64.S)
 else()
   list(APPEND LIBFFI_SOURCE_FILES
-    src/x86/unix64.S
-    src/x86/sysv.S)
+    src/x86/ffi.c
+    src/x86/ffi64.c)
+  if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+    list(APPEND LIBFFI_SOURCE_FILES
+      src/x86/darwin.S
+      src/x86/darwin64.S)
+  else()
+    list(APPEND LIBFFI_SOURCE_FILES
+      src/x86/unix64.S
+      src/x86/sysv.S)
+  endif()
 endif()
 
 add_custom_target(ffi_headers echo ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}

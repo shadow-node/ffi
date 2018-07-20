@@ -2,10 +2,9 @@
  *
  * @param {{name: string, setup?: Function, setups?: Function[], cases: Function[]}[]} suites
  */
-function run (filename, suites) {
-  console.log('Start:', filename)
+function run (suites) {
   suites.forEach(suite => {
-    console.log('Pending:', suite.name)
+    console.log('🌀   ...Pending:', suite.name)
     var statistic = {
       name: suite.name,
       total: suite.cases.length,

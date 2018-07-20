@@ -74,4 +74,4 @@ var testSuites = [
   }
 ]
 
-run(__filename, testSuites)
+run(testSuites)

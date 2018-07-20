@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from subprocess import call
-from os import environ
 from glob import glob
 
 def main():
@@ -14,9 +13,10 @@ def main():
         retcode = call(['iotjs', test_file])
         if retcode is not 0:
             failed += 1
-            print(f'💀   Failed Test: {test_file}')
+            print(f'💀   Failed: {test_file}')
         else:
             success += 1
+            print(f'💃   Success: {test_file}')
 
     if failed > 0:
         exit(1)

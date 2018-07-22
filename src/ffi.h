@@ -19,11 +19,19 @@
        : default_val)
 
 typedef struct {
-  ffi_cif *cif;
   ffi_closure *closure;
   void **code_loc;
-  jerry_value_t callback;
+  uv_async_t *handle;
 } sdffi_callback_info_t;
+
+typedef struct {
+  uv_mutex_t *mutex;
+  uv_cond_t *cond;
+  ffi_cif *cif;
+  jerry_value_t callback;
+  void *retval;
+  void **parameters;
+} sdffi_uv_async_info_t;
 
 /** MARK: - ffi.c */
 void sdffi_copy_string_property(char *dst, jerry_value_t obj, const char *name);
@@ -41,6 +49,8 @@ void LibFFICallbackInfo(jerry_value_t exports);
 
 /** MARK: - callback_info.c */
 void LibFFITypes(jerry_value_t exports);
+void sdffi_uv_async_cb (uv_async_t *handle);
+void sdffi_uv_async_handle_close_cb (uv_handle_t *handle);
 /** END MARK: callback_info.c*/
 
 /** MARK: - types.c */

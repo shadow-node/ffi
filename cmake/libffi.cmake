@@ -1,7 +1,11 @@
 set(LIB_FFI_PRODUCT_NAME libffi.a)
 
 if (LIBFFI_MODULE_TYPE STREQUAL "SHARED")
-  set(LIB_FFI_PRODUCT_NAME libffi.dylib)
+  if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+    set(LIB_FFI_PRODUCT_NAME libffi.dylib)
+  else()
+    set(LIB_FFI_PRODUCT_NAME libffi.so)
+  endif()
 else()
   set(LIBFFI_MODULE_TYPE STATIC)
 endif()

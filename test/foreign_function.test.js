@@ -21,7 +21,6 @@ var testSuites = [
       (it, done) => {
         done.async()
         it.async('foobar', (err, ret) => {
-          console.log('js: callback called', err, ret)
           if (err) {
             return done(err)
           }

@@ -45,8 +45,14 @@ function run (suites) {
         var isAsync = false
         var asyncTimer
         function done (err) {
-          assert(err == null, 'Unexpected error on async callback result')
           clearTimeout(asyncTimer)
+          if (err) {
+            console.log('# Failed:', caseName, err)
+            statistic.failed += 1
+            return
+          }
+          console.log('# Success:', caseName)
+          statistic.success += 1
         }
 
         done.async = function async () {

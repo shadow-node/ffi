@@ -1,24 +1,26 @@
 #include "ffi.h"
 
 static const jerry_object_native_info_t pointer_object_type_info = {
-  .free_cb = free
-};
+    .free_cb = free};
 
-jerry_value_t wrap_ptr (void *ptr) {
-  size_t ptr_sizeof_char = sizeof(void*) / sizeof(char);
+jerry_value_t wrap_ptr(void *ptr)
+{
+  size_t ptr_sizeof_char = sizeof(void *) / sizeof(char);
   jerry_value_t jbuffer = iotjs_bufferwrap_create_buffer(ptr_sizeof_char);
   iotjs_bufferwrap_t *bufferwrap = iotjs_bufferwrap_from_jbuffer(jbuffer);
-  iotjs_bufferwrap_copy(bufferwrap, (char *) &ptr, ptr_sizeof_char);
+  iotjs_bufferwrap_copy(bufferwrap, (char *)&ptr, ptr_sizeof_char);
 
   return jbuffer;
 }
 
-void *unwrap_ptr_from_jbuffer(jerry_value_t jbuffer) {
+void *unwrap_ptr_from_jbuffer(jerry_value_t jbuffer)
+{
   iotjs_bufferwrap_t *bufferwrap = iotjs_bufferwrap_from_jbuffer(jbuffer);
-  return *(void**)iotjs_bufferwrap_buffer(bufferwrap);
+  return *(void **)iotjs_bufferwrap_buffer(bufferwrap);
 }
 
-ffi_type* sdffi_jval_to_ffi_type_ptr(jerry_value_t jval) {
+ffi_type *sdffi_jval_to_ffi_type_ptr(jerry_value_t jval)
+{
   assert(jerry_value_is_string(jval));
 
   jerry_size_t size = jerry_get_utf8_string_size(jval);
@@ -28,12 +30,14 @@ ffi_type* sdffi_jval_to_ffi_type_ptr(jerry_value_t jval) {
   return sdffi_str_to_ffi_type_ptr(str);
 }
 
-ffi_type** sdffi_jarr_to_ffi_type_arr_ptr(jerry_value_t jarr, uint32_t length) {
+ffi_type **sdffi_jarr_to_ffi_type_arr_ptr(jerry_value_t jarr, uint32_t length)
+{
   assert(jerry_value_is_array(jarr));
 
-  ffi_type **type_arr = malloc(sizeof(void*) * length);
+  ffi_type **type_arr = malloc(sizeof(void *) * length);
 
-  for (uint32_t idx = 0; idx < length; idx++) {
+  for (uint32_t idx = 0; idx < length; idx++)
+  {
     jerry_value_t item = iotjs_jval_get_property_by_index(jarr, idx);
     type_arr[idx] = sdffi_jval_to_ffi_type_ptr(item);
     jerry_release_value(item);
@@ -54,7 +58,8 @@ ffi_type** sdffi_jarr_to_ffi_type_arr_ptr(jerry_value_t jarr, uint32_t length) {
  *
  * returns the ffi_status result from ffi_prep_cif()
  */
-JS_FUNCTION(FFIPrepCif) {
+JS_FUNCTION(FFIPrepCif)
+{
   jerry_value_t jval_buffer = JS_GET_ARG(0, object);
   int num_args = JS_GET_ARG(1, number);
   jerry_value_t jval_rtype = jargv[2];
@@ -68,17 +73,19 @@ JS_FUNCTION(FFIPrepCif) {
   ffi_cif *cif_ptr = malloc(sizeof(ffi_cif));
 
   ffi_abi abi = FFI_DEFAULT_ABI;
-  if (jerry_value_is_number(jval_abi)) {
+  if (jerry_value_is_number(jval_abi))
+  {
     abi = jerry_get_number_value(jval_abi);
   }
 
   status = ffi_prep_cif(cif_ptr, abi, num_args, rtype, arg_types);
-  if (status == FFI_OK) {
+  if (status == FFI_OK)
+  {
     iotjs_bufferwrap_t *bufferwrap = iotjs_bufferwrap_from_jbuffer(jval_buffer);
-    size_t data_len = sizeof(void*) / sizeof(char);
+    size_t data_len = sizeof(void *) / sizeof(char);
     assert(iotjs_bufferwrap_length(bufferwrap) >= data_len);
 
-    size_t written = iotjs_bufferwrap_copy(bufferwrap, (char*) &cif_ptr, data_len);
+    size_t written = iotjs_bufferwrap_copy(bufferwrap, (char *)&cif_ptr, data_len);
     assert(written == data_len);
 
     jerry_set_object_native_pointer(jval_buffer, cif_ptr, &pointer_object_type_info);
@@ -95,18 +102,18 @@ JS_FUNCTION(FFIPrepCif) {
  * args[2] - Buffer - the `void *` buffer big enough to hold the return value
  * args[3] - Buffer - the `void **` array of pointers containing the arguments
  */
-JS_FUNCTION(FFICall) {
+JS_FUNCTION(FFICall)
+{
   ffi_cif *cif_ptr = (ffi_cif *)unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
   void *fn = unwrap_ptr_from_jbuffer(JS_GET_ARG(1, object));
   void *ret = unwrap_ptr_from_jbuffer(JS_GET_ARG(2, object));
   void **fnargs = unwrap_ptr_from_jbuffer(JS_GET_ARG(3, object));
 
   ffi_call(
-    cif_ptr,
-    FFI_FN(fn),
-    (void *)ret,
-    (void **)fnargs
-  );
+      cif_ptr,
+      FFI_FN(fn),
+      (void *)ret,
+      (void **)fnargs);
 
   return jerry_create_undefined();
 }
@@ -116,12 +123,13 @@ void LibFFI(jerry_value_t exports)
   iotjs_jval_set_method(exports, "ffi_prep_cif", FFIPrepCif);
   iotjs_jval_set_method(exports, "ffi_call", FFICall);
 
-  #define WRAP(name) \
-    do { \
-      jerry_value_t wrap_##name = wrap_ptr(name); \
-      iotjs_jval_set_property_jval(exports, #name, wrap_##name); \
-      jerry_release_value(wrap_##name); \
-    } while (0)
+#define WRAP(name)                                             \
+  do                                                           \
+  {                                                            \
+    jerry_value_t wrap_##name = wrap_ptr(name);                \
+    iotjs_jval_set_property_jval(exports, #name, wrap_##name); \
+    jerry_release_value(wrap_##name);                          \
+  } while (0)
 
   WRAP(dlopen);
   WRAP(dlsym);
@@ -129,19 +137,20 @@ void LibFFI(jerry_value_t exports)
   WRAP(dlerror);
   WRAP(printf);
 
-  #undef WRAP
+#undef WRAP
 
-  #define WRAP_PREPROCESSOR_VAL(flag) \
-    do { \
-      jerry_value_t val = jerry_create_number(flag); \
-      iotjs_jval_set_property_jval(exports, #flag, val); \
-      jerry_release_value(val); \
-    } while (0)
+#define WRAP_PREPROCESSOR_VAL(flag)                    \
+  do                                                   \
+  {                                                    \
+    jerry_value_t val = jerry_create_number(flag);     \
+    iotjs_jval_set_property_jval(exports, #flag, val); \
+    jerry_release_value(val);                          \
+  } while (0)
 
   WRAP_PREPROCESSOR_VAL(RTLD_LAZY);
   WRAP_PREPROCESSOR_VAL(RTLD_NOW);
 
-  #undef WRAP_PREPROCESSOR_VAL
+#undef WRAP_PREPROCESSOR_VAL
 
   LibFFICallbackInfo(exports);
   LibFFITypes(exports);

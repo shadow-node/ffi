@@ -1,5 +1,3 @@
-var assert = require('assert')
-
 /**
  *
  * @param {{name: string, setup?: Function, setups?: Function[], cases: Function[]}[]} suites

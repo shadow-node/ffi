@@ -35,6 +35,14 @@ typedef struct
   void **parameters;
 } sdffi_uv_async_info_t;
 
+typedef struct {
+  ffi_cif *cif;
+  void *fn;
+  void *ret;
+  void **fnargs;
+  jerry_value_t callback;
+} sdffi_uv_work_info_t;
+
 /** MARK: - ffi.c */
 void sdffi_copy_string_property(char *dst, jerry_value_t obj, const char *name);
 void sdffi_copy_string_value(char *dst, jerry_value_t jval);
@@ -53,6 +61,7 @@ void LibFFICallbackInfo(jerry_value_t exports);
 void LibFFITypes(jerry_value_t exports);
 void sdffi_uv_async_cb(uv_async_t *handle);
 void sdffi_uv_async_handle_close_cb(uv_handle_t *handle);
+void sdffi_uv_work_after_cb (uv_work_t *req, int status);
 /** END MARK: callback_info.c*/
 
 /** MARK: - types.c */

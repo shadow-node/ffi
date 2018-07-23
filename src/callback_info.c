@@ -27,11 +27,12 @@ jerry_value_t sdf_dispatchToJs(const jerry_value_t jval_callback,
 
   if (jerry_value_has_error_flag(jval_ret))
   {
+    jerry_error_t error_type = jerry_get_error_type(jval_ret);
     jerry_value_t jval_err_str = jerry_value_to_string(jval_ret);
     jerry_size_t size = jerry_get_utf8_string_size(jval_err_str);
     char err_str_buf[size];
     sdffi_copy_string_value(err_str_buf, jval_err_str);
-    printf("ffi: unexpected error on invoking js callback, reason: %s.\n", err_str_buf);
+    printf("ffi: unexpected error on invoking js callback, reason(%d): %s.\n", error_type, err_str_buf);
 
     jerry_release_value(jval_err_str);
   }
@@ -119,6 +120,29 @@ void sdffi_uv_async_cb(uv_async_t *handle)
                                parameters);
 
   uv_cond_signal(info->cond);
+}
+
+/**
+ * Dispatch execution result to JS callback
+ * Clean up of callback function of threaded async calls from JS
+ */
+void sdffi_uv_work_after_cb (uv_work_t *req, int status) {
+  if (status != 0) {
+    return;
+  }
+  sdffi_uv_work_info_t *info = req->data;
+  jerry_value_t jval_callback = info->callback;
+
+  jerry_value_t jargs[1];
+  jargs[0] = jerry_create_null();
+
+  jerry_value_t jval_ret = sdf_dispatchToJs(jval_callback, jargs, 1);
+
+  jerry_release_value(jval_callback);
+  jerry_release_value(jargs[0]);
+  jerry_release_value(jval_ret);
+  free(info);
+  free(req);
 }
 
 int sdffi_async_handle_init(uv_async_t *handle, ffi_cif *cif, jerry_value_t jval_callback)

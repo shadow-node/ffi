@@ -118,10 +118,64 @@ JS_FUNCTION(FFICall)
   return jerry_create_undefined();
 }
 
+/**
+ * Callback function of threaded async calls from JS
+ *
+ * Example:
+ * ```js
+ * aSynchronousForeignFunction.async(...args, (error, retVal) => { Here comes callback hanles })
+ * ```
+ */
+void sdffi_uv_work_cb (uv_work_t *req) {
+  sdffi_uv_work_info_t *info = req->data;
+  ffi_cif *cif_ptr = info->cif;
+  void *fn = info->fn;
+  void *ret = info->ret;
+  void **fnargs = info->fnargs;
+
+  ffi_call(cif_ptr, FFI_FN(fn), ret, fnargs);
+}
+
+/*
+ * JS wrapper around `ffi_call()`.
+ *
+ * args[0] - Buffer - the `ffi_cif *`
+ * args[1] - Buffer - the C function pointer to invoke
+ * args[2] - Buffer - the `void *` buffer big enough to hold the return value
+ * args[3] - Buffer - the `void **` array of pointers containing the arguments
+ * args[4] - Function - the js callback
+ */
+JS_FUNCTION(FFICallAsync) {
+  ffi_cif *cif_ptr = (ffi_cif *)unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  void *fn = unwrap_ptr_from_jbuffer(JS_GET_ARG(1, object));
+  void *ret = unwrap_ptr_from_jbuffer(JS_GET_ARG(2, object));
+  void **fnargs = unwrap_ptr_from_jbuffer(JS_GET_ARG(3, object));
+  jerry_value_t jval_cb = JS_GET_ARG(4, function);
+
+  int status;
+  uv_work_t* work_req = malloc(sizeof(uv_work_t));
+  sdffi_uv_work_info_t *info = malloc(sizeof(sdffi_uv_work_info_t));
+
+  info->cif = cif_ptr;
+  info->fn = fn;
+  info->ret = ret;
+  info->fnargs = fnargs;
+  info->callback = jerry_acquire_value(jval_cb);
+
+  work_req->data = info;
+  status = uv_queue_work(uv_default_loop(), work_req, sdffi_uv_work_cb, sdffi_uv_work_after_cb);
+  if (status != 0) {
+    return jerry_create_number(status);
+  }
+
+  return jerry_create_number(0);
+}
+
 void LibFFI(jerry_value_t exports)
 {
   iotjs_jval_set_method(exports, "ffi_prep_cif", FFIPrepCif);
   iotjs_jval_set_method(exports, "ffi_call", FFICall);
+  iotjs_jval_set_method(exports, "ffi_call_async", FFICallAsync);
 
 #define WRAP(name)                                             \
   do                                                           \

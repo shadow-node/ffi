@@ -37,7 +37,7 @@ current.atoi('1234'); // 1234
 ## Requirements
 
  * Linux, OS X
- * `libffi` comes bundled with shadow-ffi; it does *not* need to be installed on your system.
+ * `libffi` comes bundled with shadow-ffi by default; it does *not* need to be installed on your system if you build shadow-ffi in static mode.
 
 ## Installation
 

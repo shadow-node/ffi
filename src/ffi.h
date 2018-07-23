@@ -22,7 +22,9 @@ typedef struct
 {
   ffi_closure *closure;
   void **code_loc;
-  uv_async_t *handle;
+
+  ffi_cif *cif;
+  jerry_value_t callback;
 } sdffi_callback_info_t;
 
 typedef struct

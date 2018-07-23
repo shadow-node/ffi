@@ -47,9 +47,6 @@ function run (suites) {
         function done (err) {
           assert(err == null, 'Unexpected error on async callback result')
           clearTimeout(asyncTimer)
-          setTimeout(() => {
-            process.gc()
-          }, 0)
         }
 
         done.async = function async () {
@@ -71,10 +68,6 @@ function run (suites) {
           statistic.failed += 1
         }
       })
-
-      // TODO: force GC to release uv handles holder
-      // Shall be fixed on shadow-node
-      process.gc()
     }
   })
 }

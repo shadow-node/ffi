@@ -3,7 +3,12 @@
  * @param {{name: string, setup?: Function, setups?: Function[], cases: Function[]}[]} suites
  */
 function run (suites) {
+  var exclusive = suites.reduce((accu, curr) => accu || curr.only, false)
   suites.forEach(suite => {
+    if (exclusive && !suite.only) {
+      console.log('# 💤   ...Skipping:', suite.name)
+      return
+    }
     console.log('# 🌀   ...Pending:', suite.name)
     var statistic = {
       name: suite.name,
@@ -35,10 +40,33 @@ function run (suites) {
           return
         }
 
-        try {
-          esac(ctx)
+        var isAsync = false
+        var asyncTimer
+        function done (err) {
+          clearTimeout(asyncTimer)
+          if (err) {
+            console.log('# Failed:', caseName, err)
+            statistic.failed += 1
+            return
+          }
           console.log('# Success:', caseName)
           statistic.success += 1
+        }
+
+        done.async = function async () {
+          isAsync = true
+        }
+
+        try {
+          esac(ctx, done)
+          if (!isAsync) {
+            console.log('# Success:', caseName)
+            statistic.success += 1
+            return
+          }
+          asyncTimer = setTimeout(() => {
+            console.error('Timed out for async case ' + caseName)
+          }, 3 * 1000)
         } catch (err) {
           console.log('# Failed:', caseName, err)
           statistic.failed += 1

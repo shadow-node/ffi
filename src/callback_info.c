@@ -164,7 +164,9 @@ JS_FUNCTION(WrapCallback) {
   uv_async_t *handle = malloc(sizeof(uv_async_t));
   int uv_status = sdffi_async_handle_init(handle, callback_cif, jval_callback);
   if (uv_status != 0) {
-    // TODO: release
+    uv_close((uv_handle_t *)handle, sdffi_uv_async_handle_close_cb);
+    free(code_loc);
+    free(callback_info);
     return jerry_create_number(uv_status);
   }
   callback_info->handle = handle;
@@ -172,7 +174,8 @@ JS_FUNCTION(WrapCallback) {
   closure = ffi_closure_alloc(sizeof(ffi_closure), code_loc);
   status = ffi_prep_closure_loc(closure, callback_cif, ffiInvoke, callback_info, *code_loc);
   if (status != FFI_OK) {
-    free(callback_info->code_loc);
+    uv_close((uv_handle_t *)handle, sdffi_uv_async_handle_close_cb);
+    free(code_loc);
     free(callback_info);
     ffi_closure_free(closure);
     return jerry_create_number(status);

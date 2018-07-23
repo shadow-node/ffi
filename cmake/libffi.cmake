@@ -1,3 +1,15 @@
+set(LIB_FFI_PRODUCT_NAME libffi.a)
+
+if (LIBFFI_MODULE_TYPE STREQUAL "SHARED")
+  if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+    set(LIB_FFI_PRODUCT_NAME libffi.dylib)
+  else()
+    set(LIB_FFI_PRODUCT_NAME libffi.so)
+  endif()
+else()
+  set(LIBFFI_MODULE_TYPE STATIC)
+endif()
+
 ExternalProject_Add(ffi
   PREFIX deps/libffi
   SOURCE_DIR ${CMAKE_SOURCE_DIR}/deps/libffi
@@ -5,7 +17,7 @@ ExternalProject_Add(ffi
   BINARY_DIR deps/libffi
   INSTALL_COMMAND
     ${CMAKE_COMMAND} -E copy
-    ${CMAKE_BINARY_DIR}/deps/libffi/libffi.a
+    ${CMAKE_BINARY_DIR}/deps/libffi/${LIB_FFI_PRODUCT_NAME}
     ${CMAKE_BINARY_DIR}/lib/
   CMAKE_ARGS
     -DCMAKE_TOOLCHAIN_ROOT=${CMAKE_TOOLCHAIN_ROOT}
@@ -13,9 +25,10 @@ ExternalProject_Add(ffi
     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
     -DOS=${TARGET_OS}
+    -DLIBFFI_MODULE_TYPE=${LIBFFI_MODULE_TYPE}
 )
 
-add_library(libffi STATIC IMPORTED)
+add_library(libffi ${LIBFFI_MODULE_TYPE} IMPORTED)
 add_dependencies(libffi ffi)
 set_property(TARGET libffi PROPERTY
-  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/libffi.a)
+  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/${LIB_FFI_PRODUCT_NAME})

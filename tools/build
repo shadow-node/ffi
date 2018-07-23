@@ -1,13 +1,27 @@
 #!/bin/sh
 set -e
 
+LIBFFI_MODULE_TYPE='STATIC'
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--module-type)
+			LIBFFI_MODULE_TYPE="$2"
+			shift
+			;;
+		--*)
+			echo "Illegal option $1"
+			;;
+	esac
+	shift $(( $# > 0 ? 1 : 0 ))
+done
+
 PROJECT_ROOT="$(pwd)"
 BUILD_DIR="build/$(uname -m)-$(uname)"
 mkdir -p $BUILD_DIR
 
 cd $BUILD_DIR
 
-cmake ${PROJECT_ROOT}
+cmake ${PROJECT_ROOT} -DLIBFFI_MODULE_TYPE=${LIBFFI_MODULE_TYPE}
 make
 
 cd -

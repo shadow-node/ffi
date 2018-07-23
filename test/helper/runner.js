@@ -47,6 +47,9 @@ function run (suites) {
         function done (err) {
           assert(err == null, 'Unexpected error on async callback result')
           clearTimeout(asyncTimer)
+          setTimeout(() => {
+            process.gc()
+          }, 0)
         }
 
         done.async = function async () {
@@ -62,7 +65,7 @@ function run (suites) {
           }
           asyncTimer = setTimeout(() => {
             console.error('Timed out for async case ' + caseName)
-          }, 15 * 1000)
+          }, 3 * 1000)
         } catch (err) {
           console.log('# Failed:', caseName, err)
           statistic.failed += 1

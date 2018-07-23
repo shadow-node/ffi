@@ -1,6 +1,7 @@
 # shadow-ffi
 
 ### ShadowNode Foreign Function Interface
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/57d46bfe959b4742ad614be1d9cfda7b)](https://app.codacy.com/app/legendecas/ffi?utm_source=github.com&utm_medium=referral&utm_content=shadow-node/ffi&utm_campaign=badger)
 [![Build Status](https://travis-ci.com/shadow-node/ffi.svg?branch=master)](https://travis-ci.com/shadow-node/ffi)
 
 `shadow-ffi` is a ShadowNode addon for loading and calling dynamic libraries using

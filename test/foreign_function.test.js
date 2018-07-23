@@ -17,6 +17,17 @@ var testSuites = [
     cases: [
       it => {
         assert(it('foobar') === 'foobar')
+      },
+      (it, done) => {
+        done.async()
+        it.async('foobar', (err, ret) => {
+          console.log('js: callback called', err, ret)
+          if (err) {
+            return done(err)
+          }
+          assert.strictEqual(ret, 'foobar')
+          done()
+        })
       }
     ]
   },

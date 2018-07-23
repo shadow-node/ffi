@@ -1,9 +1,16 @@
+var assert = require('assert')
+
 /**
  *
  * @param {{name: string, setup?: Function, setups?: Function[], cases: Function[]}[]} suites
  */
 function run (suites) {
+  var exclusive = suites.reduce((accu, curr) => accu || curr.only, false)
   suites.forEach(suite => {
+    if (exclusive && !suite.only) {
+      console.log('# 💤   ...Skipping:', suite.name)
+      return
+    }
     console.log('# 🌀   ...Pending:', suite.name)
     var statistic = {
       name: suite.name,
@@ -35,10 +42,27 @@ function run (suites) {
           return
         }
 
+        var isAsync = false
+        var asyncTimer
+        function done (err) {
+          assert(err == null, 'Unexpected error on async callback result')
+          clearTimeout(asyncTimer)
+        }
+
+        done.async = function async () {
+          isAsync = true
+        }
+
         try {
-          esac(ctx)
-          console.log('# Success:', caseName)
-          statistic.success += 1
+          esac(ctx, done)
+          if (!isAsync) {
+            console.log('# Success:', caseName)
+            statistic.success += 1
+            return
+          }
+          asyncTimer = setTimeout(() => {
+            console.error('Timed out for async case ' + caseName)
+          }, 15 * 1000)
         } catch (err) {
           console.log('# Failed:', caseName, err)
           statistic.failed += 1

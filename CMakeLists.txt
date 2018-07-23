@@ -29,5 +29,3 @@ include(ExternalProject)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 include(cmake/libffi.cmake)
 include(cmake/shadow_ffi.cmake)
-
-set(CMAKE_BUILD_TYPE Debug)

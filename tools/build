@@ -1,9 +1,14 @@
 #!/bin/sh
 set -e
 
+CMAKE_BUILD_TYPE='Debug'
 LIBFFI_MODULE_TYPE='STATIC'
 while [ $# -gt 0 ]; do
 	case "$1" in
+    --release)
+      CMAKE_BUILD_TYPE="$2"
+      shift
+      ;;
 		--module-type)
 			LIBFFI_MODULE_TYPE="$2"
 			shift
@@ -21,7 +26,7 @@ mkdir -p $BUILD_DIR
 
 cd $BUILD_DIR
 
-cmake ${PROJECT_ROOT} -DLIBFFI_MODULE_TYPE=${LIBFFI_MODULE_TYPE}
+cmake ${PROJECT_ROOT} -DLIBFFI_MODULE_TYPE=${LIBFFI_MODULE_TYPE} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 make
 
 cd -

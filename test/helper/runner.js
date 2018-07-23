@@ -44,10 +44,6 @@ function run (suites) {
           statistic.failed += 1
         }
       })
-
-      // TODO: force GC to release uv handles holder
-      // Shall be fixed on shadow-node
-      process.gc()
     }
   })
 }

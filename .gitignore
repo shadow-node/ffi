@@ -19,3 +19,6 @@ gyp-*-tool
 npm-debug.log
 
 *-tmp
+
+deps/libffi/texinfo.tex
+deps/libffi/local.exp

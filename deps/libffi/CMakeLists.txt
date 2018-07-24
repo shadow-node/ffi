@@ -33,6 +33,8 @@ endif()
 
 add_custom_target(ffi_headers echo ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
   BYPRODUCTS include/ffi.h fficofig.h
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  COMMAND ${CMAKE_SOURCE_DIR}/autogen.sh
   COMMAND ${CMAKE_SOURCE_DIR}/configure --enable-static --disable-shared --disable-builddir --with-pic
   VERBATIM)
 

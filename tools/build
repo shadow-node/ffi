@@ -3,6 +3,7 @@ set -e
 
 CMAKE_BUILD_TYPE='Debug'
 LIBFFI_MODULE_TYPE='STATIC'
+LIBFFI_LINK_EXTERNAL='NO'
 while [ $# -gt 0 ]; do
 	case "$1" in
     --release)
@@ -13,6 +14,10 @@ while [ $# -gt 0 ]; do
 			LIBFFI_MODULE_TYPE="$2"
 			shift
 			;;
+    --libffi-link-external)
+      LIBFFI_MODULE_TYPE='SHARED'
+      LIBFFI_LINK_EXTERNAL='YES'
+      ;;
 		--*)
 			echo "Illegal option $1"
 			;;
@@ -26,7 +31,10 @@ mkdir -p $BUILD_DIR
 
 cd $BUILD_DIR
 
-cmake ${PROJECT_ROOT} -DLIBFFI_MODULE_TYPE=${LIBFFI_MODULE_TYPE} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+cmake ${PROJECT_ROOT} \
+  -DLIBFFI_MODULE_TYPE=${LIBFFI_MODULE_TYPE} \
+  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
+  -DLIBFFI_LINK_EXTERNAL=${LIBFFI_LINK_EXTERNAL}
 make
 
 cd -

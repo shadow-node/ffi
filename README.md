@@ -48,8 +48,15 @@ An easy way to install shadow-ffi is going to be implemented. Right now it has t
 ``` bash
 $ git clone git://github.com/shadow-node/ffi.git shadow-ffi
 $ cd shadow-ffi
-$ npm run configure
 $ npm run build
+```
+
+### Use system libffi.{dylib,so}
+
+shadow-ffi can be built with dynamically linked libffi. To build shadow-ffi dynamically linked:
+
+```bash
+$ npm run build -- --libffi-link-external
 ```
 
 ## Call Overhead

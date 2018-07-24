@@ -31,8 +31,10 @@ function run (suites) {
         var caseName = (setupIdx != null ? 'setup' + setupIdx : '') + '#case' + idx
         var ctx
         try {
-          if (setup) {
+          if (typeof setup === 'function') {
             ctx = setup()
+          } else {
+            ctx = setup
           }
         } catch (err) {
           console.log('# Failed Preparation:', caseName, err)

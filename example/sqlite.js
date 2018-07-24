@@ -78,12 +78,16 @@ var callback = ffi.Callback('int', ['void *', 'int', stringPtr, stringPtr], func
 })
 
 var b = ffi.Types.castToCType('string', 'foobar')
-// TODO: Async calls, run function in a different thread
-// SQLite3.sqlite3_exec.async(db, 'SELECT * FROM foo;', callback, b, null, function (err, ret) {
-SQLite3.sqlite3_exec(db, 'SELECT * FROM foo;', callback, b, null)
-console.log('Total Rows: %j', rowCount)
-console.log('Changes: %j', SQLite3.sqlite3_changes(db))
-console.log('Closing...')
-SQLite3.sqlite3_close(db)
-console.log('Removing DB...')
-fs.unlinkSync(dbName)
+SQLite3.sqlite3_exec.async(db, 'SELECT * FROM foo;', callback, b, null, function (err, ret) {
+  if (err) {
+    console.error('Unexpected error on exec', err)
+    return
+  }
+
+  console.log('Total Rows: %j', rowCount)
+  console.log('Changes: %j', SQLite3.sqlite3_changes(db))
+  console.log('Closing...')
+  SQLite3.sqlite3_close(db)
+  console.log('Removing DB...')
+  fs.unlinkSync(dbName)
+})

@@ -14,3 +14,8 @@ include_directories(
   ${CMAKE_INCLUDE_PATH}/shadow-node
   ${PROJECT_SOURCE_DIR}/deps/libffi/include
   ${CMAKE_BINARY_DIR}/deps/libffi/include)
+
+file(GLOB_RECURSE SHADOW_FFI_JS_FILES lib/*.js lib/**/*.js)
+
+install(TARGETS shadow_ffi DESTINATION ${CMAKE_INSTALL_DIR}/packages/shadow-ffi/build/bindings)
+install(FILES ${SHADOW_FFI_JS_FILES} DESTINATION ${CMAKE_INSTALL_DIR}/packages/shadow-ffi/lib)

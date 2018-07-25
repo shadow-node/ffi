@@ -1,5 +1,5 @@
 {
-  "name": "shadow-ffi",
+  "name": "@shadow-node/ffi",
   "version": "0.0.1",
   "license": "MIT",
   "author": "Lucas Woo <legendecas@gmail.com>",

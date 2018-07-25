@@ -22,7 +22,8 @@ if (NOT LIBFFI_LINK_EXTERNAL)
   include_directories(${PROJECT_LIBFFI_HEADERS_DIR})
 endif()
 
-file(GLOB_RECURSE SHADOW_FFI_JS_FILES lib/*.js lib/**/*.js)
-
-install(TARGETS shadow_ffi DESTINATION ${CMAKE_INSTALL_DIR}/packages/shadow-ffi/build/bindings)
-install(FILES ${SHADOW_FFI_JS_FILES} DESTINATION ${CMAKE_INSTALL_DIR}/packages/shadow-ffi/lib)
+if (CMAKE_INSTALL_DIR)
+  install(TARGETS shadow_ffi DESTINATION ${CMAKE_INSTALL_DIR}/build/bindings)
+  install(DIRECTORY lib src test tools DESTINATION ${CMAKE_INSTALL_DIR})
+  install(FILES package.json DESTINATION ${CMAKE_INSTALL_DIR})
+endif()

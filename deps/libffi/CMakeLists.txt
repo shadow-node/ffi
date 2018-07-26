@@ -17,18 +17,28 @@ set(LIBFFI_SOURCE_FILES
   src/java_raw_api.c
   src/closures.c)
 
-list(APPEND LIBFFI_SOURCE_FILES
-  src/x86/ffi.c
-  src/x86/ffi64.c)
-
-if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+if (CMAKE_EXTERNAL_SYSTEM_PROCESSOR MATCHES aarch64)
   list(APPEND LIBFFI_SOURCE_FILES
-    src/x86/darwin.S
-    src/x86/darwin64.S)
+    src/aarch64/ffi.c
+    src/aarch64/sysv.S)
+elseif(CMAKE_EXTERNAL_SYSTEM_PROCESSOR MATCHES arm)
+  list(APPEND LIBFFI_SOURCE_FILES
+    src/arm/ffi.c
+    src/arm/sysv.S)
 else()
   list(APPEND LIBFFI_SOURCE_FILES
-    src/x86/unix64.S
-    src/x86/sysv.S)
+    src/x86/ffi.c
+    src/x86/ffi64.c)
+
+  if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+    list(APPEND LIBFFI_SOURCE_FILES
+      src/x86/darwin.S
+      src/x86/darwin64.S)
+  else()
+    list(APPEND LIBFFI_SOURCE_FILES
+      src/x86/unix64.S
+      src/x86/sysv.S)
+  endif()
 endif()
 
 add_custom_target(ffi_headers echo ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}

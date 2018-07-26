@@ -202,7 +202,10 @@ JS_FUNCTION(WriteStringValue)
 
   char **data_ptr = (char **)(ptr + offset);
   *data_ptr = str_data;
-  return jerry_create_undefined();
+
+  jerry_value_t jval_ptr = wrap_ptr(str_data);
+  jerry_set_object_native_pointer(jval_ptr, str_data, &pointer_object_type_info);
+  return jval_ptr;
 }
 
 /**

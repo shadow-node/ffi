@@ -1,7 +1,13 @@
 #include "ffi.h"
 
-static const jerry_object_native_info_t pointer_object_type_info = {
-    .free_cb = free};
+void cif_pointer_free_cb (void *cif) {
+  ffi_cif *cif_ptr = (ffi_cif *) cif;
+  free(cif_ptr->arg_types);
+  free(cif_ptr);
+}
+
+static const jerry_object_native_info_t cif_pointer_object_type_info = {
+    .free_cb = cif_pointer_free_cb};
 
 jerry_value_t wrap_ptr(void *ptr)
 {
@@ -27,7 +33,9 @@ ffi_type *sdffi_jval_to_ffi_type_ptr(jerry_value_t jval)
   char *str = malloc(sizeof(char) * (size + 1));
   sdffi_copy_string_value(str, jval);
 
-  return sdffi_str_to_ffi_type_ptr(str);
+  ffi_type *type = sdffi_str_to_ffi_type_ptr(str);
+  free(str);
+  return type;
 }
 
 ffi_type **sdffi_jarr_to_ffi_type_arr_ptr(jerry_value_t jarr, uint32_t length)
@@ -88,7 +96,7 @@ JS_FUNCTION(FFIPrepCif)
     size_t written = iotjs_bufferwrap_copy(bufferwrap, (char *)&cif_ptr, data_len);
     assert(written == data_len);
 
-    jerry_set_object_native_pointer(jval_buffer, cif_ptr, &pointer_object_type_info);
+    jerry_set_object_native_pointer(jval_buffer, cif_ptr, &cif_pointer_object_type_info);
   }
 
   return jerry_create_number(status);

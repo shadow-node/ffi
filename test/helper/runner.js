@@ -2,14 +2,17 @@
  *
  * @param {{name: string, setup?: Function, setups?: Function[], cases: Function[]}[]} suites
  */
-function run (suites) {
+function run (suites, logger) {
+  if (logger == null) {
+    logger = console
+  }
   var exclusive = suites.reduce((accu, curr) => accu || curr.only, false)
   suites.forEach(suite => {
     if (exclusive && !suite.only) {
-      console.log('# 💤   ...Skipping:', suite.name)
+      logger.log('# 💤   ...Skipping:', suite.name)
       return
     }
-    console.log('# 🌀   ...Pending:', suite.name)
+    logger.log('# 🌀   ...Pending:', suite.name)
     var statistic = {
       name: suite.name,
       total: suite.cases.length,
@@ -37,7 +40,7 @@ function run (suites) {
             ctx = setup
           }
         } catch (err) {
-          console.log('# Failed Preparation:', caseName, err)
+          logger.log('# Failed Preparation:', caseName, err)
           statistic.failed += 1
           return
         }
@@ -47,11 +50,11 @@ function run (suites) {
         function done (err) {
           clearTimeout(asyncTimer)
           if (err) {
-            console.log('# Failed:', caseName, err)
+            logger.log('# Failed:', caseName, err)
             statistic.failed += 1
             return
           }
-          console.log('# Success:', caseName)
+          logger.log('# Success:', caseName)
           statistic.success += 1
         }
 
@@ -62,15 +65,15 @@ function run (suites) {
         try {
           esac(ctx, done)
           if (!isAsync) {
-            console.log('# Success:', caseName)
+            logger.log('# Success:', caseName)
             statistic.success += 1
             return
           }
           asyncTimer = setTimeout(() => {
-            console.error('Timed out for async case ' + caseName)
+            logger.error('Timed out for async case ' + caseName)
           }, 3 * 1000)
         } catch (err) {
-          console.log('# Failed:', caseName, err)
+          logger.log('# Failed:', caseName, err)
           statistic.failed += 1
         }
       })
@@ -78,4 +81,27 @@ function run (suites) {
   })
 }
 
-module.exports = run
+/**
+ * Same suites as #run yet keeps running to detect possible memory leaks
+ */
+function keepRun (suites) {
+  var logger = { log: () => {}, error: () => {} }
+  setInterval(() => {
+    var stat = process.memoryUsage()
+    run(suites, logger)
+    var curr = process.memoryUsage()
+    var delta = curr.rss - stat.rss
+    if (delta > 0) {
+      console.log('🤢 rss size increased', delta)
+    }
+    if (delta < 0) {
+      console.log('😳 rss size decreased', delta)
+    }
+  }, 10)
+}
+
+if (process.argv.indexOf('--keep-run') >= 0) {
+  module.exports = keepRun
+} else {
+  module.exports = run
+}

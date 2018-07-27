@@ -58,6 +58,16 @@ JS_FUNCTION(DerefPointerPointer)
 }
 
 /**
+ * Free a pointer manually
+ */
+JS_FUNCTION(FreePointer)
+{
+  pointer ptr = unwrap_ptr_from_jbuffer(JS_GET_ARG(0, object));
+  free(ptr);
+  return jerry_create_undefined();
+}
+
+/**
  * Write an pointer value to pointed location with an offset
  */
 JS_FUNCTION(WritePointerValue)
@@ -282,6 +292,7 @@ void sdffi_cast_jval_to_pointer(void *ptr, ffi_type *type_ptr, jerry_value_t jva
   if (jerry_value_is_string(jval))
   {
     jerry_length_t len = jerry_get_string_length(jval);
+    // Possible memory leaks on char*
     char *val = malloc(sizeof(char) * len);
     jerry_string_to_char_buffer(jval, (jerry_char_t *)val, len);
 
@@ -315,6 +326,7 @@ void LibFFITypes(jerry_value_t exports)
   iotjs_jval_set_method(exports, "alloc_pointer", AllocPointer);
   iotjs_jval_set_method(exports, "wrap_pointers", WrapPointers);
   iotjs_jval_set_method(exports, "deref_pointer_pointer", DerefPointerPointer);
+  iotjs_jval_set_method(exports, "free_pointer", FreePointer);
   iotjs_jval_set_method(exports, "write_pointer_value", WritePointerValue);
 
   iotjs_jval_set_method(exports, "wrap_number_value", WrapNumberValue);

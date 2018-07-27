@@ -186,20 +186,23 @@ void sdffi_uv_async_cb(uv_async_t *handle)
  * Clean up of callback function of threaded async calls from JS
  */
 void sdffi_uv_work_after_cb (uv_work_t *req, int status) {
-  if (status != 0) {
-    return;
-  }
   sdffi_uv_work_info_t *info = req->data;
   jerry_value_t jval_callback = info->callback;
+
+  if (status != 0) {
+    goto cleanup;
+  }
 
   jerry_value_t jargs[1];
   jargs[0] = jerry_create_null();
 
   jerry_value_t jval_ret = sdf_dispatchToJs(jval_callback, jargs, 1);
 
-  jerry_release_value(jval_callback);
   jerry_release_value(jargs[0]);
   jerry_release_value(jval_ret);
+
+cleanup:
+  jerry_release_value(jval_callback);
   free(info);
   free(req);
 }

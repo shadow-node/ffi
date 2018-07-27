@@ -99,6 +99,8 @@ JS_FUNCTION(FFIPrepCif)
     jerry_set_object_native_pointer(jval_buffer, cif_ptr, &cif_pointer_object_type_info);
   }
 
+  free(cif_ptr);
+  free(arg_types);
   return jerry_create_number(status);
 }
 
@@ -173,6 +175,8 @@ JS_FUNCTION(FFICallAsync) {
   work_req->data = info;
   status = uv_queue_work(uv_default_loop(), work_req, sdffi_uv_work_cb, sdffi_uv_work_after_cb);
   if (status != 0) {
+    free(work_req);
+    free(info);
     return jerry_create_number(status);
   }
 

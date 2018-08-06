@@ -24,10 +24,11 @@ endif()
 
 if (CMAKE_INSTALL_DIR)
   install(TARGETS shadow_ffi DESTINATION ${CMAKE_INSTALL_DIR}/build/bindings)
-  install(DIRECTORY lib src DESTINATION ${CMAKE_INSTALL_DIR})
+  install(DIRECTORY lib DESTINATION ${CMAKE_INSTALL_DIR})
   install(FILES package.json DESTINATION ${CMAKE_INSTALL_DIR})
 
   if (CMAKE_BUILD_TYPE MATCHES Debug)
+    install(DIRECTORY src DESTINATION ${CMAKE_INSTALL_DIR})
     install(DIRECTORY test tools DESTINATION ${CMAKE_INSTALL_DIR})
   endif()
 endif()
